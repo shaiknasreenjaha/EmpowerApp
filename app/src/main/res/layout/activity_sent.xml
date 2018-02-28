@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:fitsSystemWindows="true"
+    android:background="@color/colorAccent">
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorAccent">
+        <ImageView
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:id="@+id/imagePostSent"
+            android:src="@drawable/ic_menu_camera"
+            android:layout_gravity="center"
+            android:layout_marginTop="25dp"
+            />
+        <TextView
+            android:layout_marginTop="30dp"
+            android:layout_width="100dp"
+            android:layout_height="30dp"
+            android:textColor="@color/colorButton"
+            android:layout_marginLeft="10dp"
+            android:text="Description:"
+            android:textSize="16dp"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="image description"
+            android:id="@+id/sentprofiledes"
+            android:layout_marginLeft="10dp"
+            android:textColor="@color/colorButton"
+
+            />
+
+        <TextView
+            android:layout_marginTop="30dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:id="@+id/nobid"
+            android:textStyle="bold"
+            android:text="NO MESSAGES RELATED TO THIS POST"
+            android:textColor="@color/colorButton"/>
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textColor="@color/colorButton"
+            android:textSize="15dp"
+            android:id="@+id/rate"
+            android:layout_marginTop="12dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="Rate this Worker?"
+            android:clickable="true"
+            />
+    </LinearLayout>
+</ScrollView>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:fitsSystemWindows="true"
+    android:background="@color/colorAccent">
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorAccent">
+    <ImageView
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:id="@+id/imagePost"
+        android:src="@drawable/ic_menu_camera"
+        android:layout_gravity="center"
+        android:layout_marginTop="25dp"
+        />
+    <TextView
+        android:layout_marginTop="30dp"
+        android:layout_width="100dp"
+        android:layout_height="30dp"
+        android:textColor="@color/colorButton"
+        android:text="Description:"
+        android:layout_marginLeft="10dp"
+        android:textSize="16dp"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="image description"
+        android:id="@+id/hai"
+        android:layout_marginLeft="10dp"
+        android:textColor="@color/colorButton"
+
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/NotPossible"
+        android:textColor="@color/colorButton"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:textSize="19dp"
+        android:layout_marginTop="10dp"
+        android:text="Chance to Bid is Completed"/>
+    <LinearLayout
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        android:layout_gravity="bottom"
+        >
+
+        <EditText android:id="@+id/sentmsg"
+            android:layout_width="300dp"
+            android:layout_height="45dp"
+            android:background="@drawable/text_shape"
+            android:inputType="numberDecimal"
+            android:hint=" Enter your Bidding Amount "
+            android:textColorHint="@color/colorButton"
+            android:textColor="@color/colorButton"
+            android:layout_marginLeft="5dp"
+            android:paddingLeft="5dp"
+            android:layout_gravity="bottom"
+
+            />
+
+        <ImageButton
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="end"
+            android:background="@drawable/send_shape"
+            android:text="send"
+            android:src="@drawable/ic_menu_send"
+            android:id="@+id/sendbid"
+            android:textColor="@color/colorAccent"
+            />
+
+    </LinearLayout>
+    </LinearLayout>
+
+    </ScrollView>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorAccent">
+
+    <ImageView
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:id="@+id/profileimage"/>
+
+    <TextView
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:textColor="@color/colorButton"
+        android:text="name"
+        android:textSize="20dp"
+        android:layout_marginTop="4dp"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:id="@+id/profilename" />
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="20dp"
+        android:layout_gravity="center"
+        android:gravity="center">
+
+
+        <TextView
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorButton"
+            android:text="9948232450"
+            android:id="@+id/profilephone"
+            android:textSize="20dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            />
+
+        <ImageButton
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_call"
+            android:background="@color/colorAccent"
+            android:id="@+id/profilecall"
+            android:layout_marginLeft="5dp"
+            />
+        <ImageButton
+            android:layout_width="30dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_message"
+            android:id="@+id/profilemessage"
+            android:background="@color/colorAccent"/>
+    </LinearLayout>
+
+
+    <com.iarcuschin.simpleratingbar.SimpleRatingBar
+        android:id="@+id/ratingBar2"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        app:srb_starSize="30dp"
+        app:srb_numberOfStars="5"
+        app:srb_rating="1.0"
+        app:srb_stepSize=".1"
+        app:srb_borderColor="#F9A825"
+        app:srb_isIndicator="true"
+        android:layout_below = "@+id/no"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="10dp"
+        app:srb_fillColor="#F9A825"/>
+
+    <Button
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:background="@color/colorButton"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:layout_marginTop="30dp"
+        android:text="View Profile"
+        android:id="@+id/view_profile"
+        />
+
+
+
+
+</LinearLayout>

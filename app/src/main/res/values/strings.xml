@@ -1,0 +1,41 @@
+<resources>
+    <string name="app_name">Empower</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="skill_prompt">Choose a skill</string>
+    <string-array name="skill_array">
+        <item>Choose a Skill</item>
+        <item>Carpenter</item>
+        <item>Plumber</item>
+        <item>Electrician</item>
+        <item>Mechanic</item>
+        <item>Painter</item>
+        <item>Home Cleaning</item>
+        <item>Driver</item>
+        <item>Beautician</item>
+
+        <item>None</item>
+    </string-array>
+
+    <string name="action_settings">Settings</string>
+    <string name="nameerror">Enter Valid Name</string>
+    <string name="passworderror">Password shoould contain one letter,one number,no spaces and atleast 6 characters</string>
+    <string name="mobileerror">Enter Valid Mobile Number</string>
+    <string name="locationerror">Enter Valid Village Name</string>
+    <string name="cityerror">Enter Valid city</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_home">HomeActivity</string>
+
+    <string name="title_section1">Section 1</string>
+    <string name="title_section2">Section 2</string>
+    <string name="title_section3">Section 3</string>
+
+    <string name="action_example">Example action</string>
+    <string name="title_activity_hire">Hire</string>
+    <string name="title_activity_maps">Map</string>
+
+
+</resources>

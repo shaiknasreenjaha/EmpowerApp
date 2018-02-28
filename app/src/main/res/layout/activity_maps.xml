@@ -1,0 +1,68 @@
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:fitsSystemWindows="true"
+    android:background="@drawable/background_gradient">
+
+<LinearLayout xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width = "wrap_content"
+    android:layout_height = "wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:background="@drawable/background_gradient">
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp">
+            <EditText android:id="@+id/text"
+                android:layout_width="320dp"
+                android:layout_height="wrap_content"
+                android:inputType="textCapWords"
+                android:hint="Enter city to search" />
+        </android.support.design.widget.TextInputLayout>
+        <ImageButton
+            android:id="@+id/search"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:gravity="end"
+            android:src="@drawable/ic_search"
+            android:backgroundTint="@color/colorButton"
+            android:background="@drawable/send_shape"/>
+    </LinearLayout>
+
+    <fragment
+
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="384dp"
+        android:layout_height="463dp"
+        tools:context="com.example.hp.googletrack.MapsActivity" />
+
+
+
+
+        <Button
+            android:id="@+id/hire"
+            android:layout_width="340dp"
+            android:layout_height="50dp"
+            android:layout_marginBottom="24dp"
+            android:layout_marginTop="10dp"
+            android:text="Hire"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:background="#004d45"/>
+
+
+</LinearLayout>
+    </ScrollView>
+
+
+

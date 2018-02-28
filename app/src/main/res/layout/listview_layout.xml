@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_margin="5dp"
+    card_view:cardCornerRadius="10dp"
+    card_view:cardElevation="5dp"
+    android:layout_height="135dp">
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".Home"
+    android:background="@color/colorAccent"
+    >
+    <ImageView
+        android:layout_width="109dp"
+        android:layout_height="109dp"
+        android:id="@+id/circleImageView"
+        android:layout_gravity="center"
+        android:gravity = "center"
+        android:layout_marginLeft="5dp"
+        android:layout_alignParentStart="true" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="5dp"
+        android:weightSum="3"
+        >
+
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:id="@+id/name"
+                android:text="name"
+                android:textSize="18dp"
+                android:paddingLeft="30dp"
+                android:layout_alignParentEnd="true"
+                android:layout_toEndOf="@+id/circleImageView"
+                android:textColor="@color/colorButton"/>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+        <TextView
+            android:layout_width="150dp"
+            android:layout_height="30dp"
+            android:id="@+id/no"
+            android:layout_below="@+id/name"
+            android:layout_marginTop="10dp"
+            android:text="Phonenumber"
+            android:textSize="18dp"
+            android:paddingLeft="30dp"
+            android:layout_toEndOf="@+id/circleImageView"
+            android:textColor="@color/colorButton"/>
+        <ImageButton
+            android:layout_width="40dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_call"
+            android:background="@color/colorAccent"
+            android:id="@+id/call"
+            android:layout_marginLeft="5dp"
+            />
+                <ImageButton
+                    android:layout_width="30dp"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/ic_message"
+                    android:id="@+id/message"
+                    android:background="@color/colorAccent"/>
+            </LinearLayout>
+        <!--<RatingBar
+           android:id="@+id/ratingBar"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_below="@+id/no"
+           android:layout_alignParentEnd="true"
+           android:layout_toEndOf="@+id/circleImageView"
+           android:numStars="5"
+           android:stepSize="0.1"
+           android:theme="@style/RatingBar"
+           style="?android:attr/ratingBarStyle"
+            android:isIndicator="true"
+
+           />-->
+            <com.iarcuschin.simpleratingbar.SimpleRatingBar
+                android:id="@+id/ratingBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                app:srb_starSize="30dp"
+                app:srb_numberOfStars="5"
+                app:srb_rating="1.0"
+                app:srb_stepSize=".1"
+                app:srb_borderColor="#F9A825"
+                app:srb_isIndicator="true"
+                android:layout_below = "@+id/no"
+                android:layout_alignParentRight="true"
+                app:srb_fillColor="#F9A825"
+               />
+
+
+
+    </LinearLayout>
+
+</LinearLayout>
+    </android.support.v7.widget.CardView>

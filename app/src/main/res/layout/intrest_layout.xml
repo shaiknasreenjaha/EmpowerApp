@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorAccent">
+
+
+
+        <Button
+            android:layout_width="300dp"
+            android:layout_height="35dp"
+            android:textColor="@color/colorAccent"
+            android:text="REGISTER AS"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:background="@color/colorButton"
+            android:textSize="15dp"
+            android:paddingTop="5dp"
+            android:id="@+id/logindisable"
+            android:onClick="Interest"
+            android:clickable="true"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"/>
+
+    <include layout="@layout/worker_list"/>
+
+</LinearLayout>
