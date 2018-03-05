@@ -36,6 +36,7 @@
         android:orientation="vertical"
         android:layout_margin="5dp"
         android:weightSum="3"
+        android:paddingLeft="10dp"
         >
 
 

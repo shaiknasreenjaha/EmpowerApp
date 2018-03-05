@@ -15,7 +15,6 @@
         android:layout_width="300dp"
         android:layout_height="300dp"
         android:id="@+id/imagePost"
-        android:src="@drawable/ic_menu_camera"
         android:layout_gravity="center"
         android:layout_marginTop="25dp"
         />
@@ -60,11 +59,12 @@
             android:layout_height="45dp"
             android:background="@drawable/text_shape"
             android:inputType="numberDecimal"
-            android:hint=" Enter your Bidding Amount "
             android:textColorHint="@color/colorButton"
             android:textColor="@color/colorButton"
             android:layout_marginLeft="5dp"
-            android:paddingLeft="5dp"
+            android:paddingLeft="10dp"
+            android:hint=" Enter your Bidding Amount "
+            android:textCursorDrawable="@color/ColorPrimary"
             android:layout_gravity="bottom"
 
             />
