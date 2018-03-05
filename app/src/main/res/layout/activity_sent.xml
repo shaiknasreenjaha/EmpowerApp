@@ -15,7 +15,6 @@
             android:layout_width="300dp"
             android:layout_height="300dp"
             android:id="@+id/imagePostSent"
-            android:src="@drawable/ic_menu_camera"
             android:layout_gravity="center"
             android:layout_marginTop="25dp"
             />

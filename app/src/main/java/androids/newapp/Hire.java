@@ -17,12 +17,15 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.TextView;
-
+import android.widget.Toast;
+import java.sql.Connection;
 import java.util.HashMap;
 
 public class Hire extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+
+    Connection connect;
     GridView gridView;
     String[] gridViewString = {
             "Electrician", "Mechanic", "Painter", "Plumber", "Carpenter", "Home Cleaning", "Beautician", "Driver"};
@@ -57,10 +60,18 @@ public class Hire extends AppCompatActivity
             TextView name;
             name = (TextView) header.findViewById(R.id.personName);
             DBHelper dbHelper= new DBHelper(Hire.this);
-            dbHelper.open();
-            String name1 = dbHelper.getUserName(userid);
-            dbHelper.close();
-            name.setText(name1);
+            ConnectionHelper conStr=new ConnectionHelper();
+            connect =conStr.connectionclasss();        // Connect to database
+            if (connect == null)          {
+                Toast.makeText(getApplicationContext(), "Check Your Internet Access!",Toast.LENGTH_SHORT).show();
+            }
+            else {
+
+                dbHelper.open();
+                String name1 = dbHelper.getUserName(userid, connect);
+                dbHelper.close();
+                name.setText(name1);
+            }
 
         }
 
@@ -111,6 +122,10 @@ public class Hire extends AppCompatActivity
                 break;
             case R.id.nav_logout:
                 intent = new Intent(Hire.this, Logout.class);
+                startActivity(intent);
+                break;
+            case R.id.nav_history:
+                intent = new Intent(Hire.this, MyProfile.class);
                 startActivity(intent);
                 break;
         }

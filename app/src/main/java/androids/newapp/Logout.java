@@ -1,6 +1,6 @@
 package androids.newapp;
 
-import android.app.Activity;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -14,7 +14,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
+
 
 /**
  * Created by Lenovo on 09-Feb-18.
@@ -22,12 +22,7 @@ import android.widget.Toast;
 
 public class Logout extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener{
-    // Alert Dialog Manager
-
-    // Session Manager Class
     SessionManager session;
-
-    // Button Logout
     Button btn;
 
     @Override
@@ -100,6 +95,7 @@ public class Logout extends AppCompatActivity
             mBuilder.setPositiveButton("Login", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+                    IntentData.intentClass = 4;
                     Intent intent = new Intent(Logout.this, LoginActivity.class);
                     startActivity(intent);
                 }
@@ -123,7 +119,8 @@ public class Logout extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            Intent intent = new Intent(Logout.this,MainActivity.class);
+            startActivity(intent);
         }
     }
     @SuppressWarnings("StatementWithEmptyBody")
@@ -149,6 +146,10 @@ public class Logout extends AppCompatActivity
                 break;
             case R.id.nav_logout:
                 intent = new Intent(Logout.this, Logout.class);
+                startActivity(intent);
+                break;
+            case R.id.nav_history:
+                intent = new Intent(Logout.this, MyProfile.class);
                 startActivity(intent);
                 break;
         }

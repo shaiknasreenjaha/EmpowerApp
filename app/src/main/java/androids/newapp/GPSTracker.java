@@ -14,13 +14,8 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
-import android.widget.Toast;
 
-/**
- * Created by HP on 07-02-2018.
- */
 
 public class GPSTracker extends Service implements LocationListener {
     private final Context context;

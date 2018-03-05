@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class IntentData {
 
 
-    public static Bitmap imageIntent;
+    public static String imageIntent;
     public static String nameIntent;
     public static String ToIntent;
      public static  String skillIntent;

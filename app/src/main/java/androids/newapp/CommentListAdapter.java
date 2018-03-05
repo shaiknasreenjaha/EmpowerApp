@@ -3,6 +3,8 @@ package androids.newapp;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +13,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import java.io.ByteArrayOutputStream;
+import java.sql.Connection;
 import java.util.ArrayList;
 
 /**
@@ -22,15 +26,16 @@ public class CommentListAdapter extends ArrayAdapter<UserProfile> {
     LayoutInflater inflater;
     Context context;
     SessionManager sessionManager;
+    Connection connection;
     TextView name,pno,date;
     ArrayList<UserProfile> Users = new ArrayList<UserProfile>();
-    Bitmap bitmap;
+    String bitmap;
     String date1;
     String userId;
     String description;
     DBHelper dbHelper;
 
-    public CommentListAdapter(Context c, ArrayList<UserProfile> users,Bitmap bitmap,String description,String date){
+    public CommentListAdapter(Context c, ArrayList<UserProfile> users,String bitmap,String description,String date){
         super(c,0,users);
         this.context = c;
         this.Users = users;
@@ -53,8 +58,41 @@ public class CommentListAdapter extends ArrayAdapter<UserProfile> {
             TextView desc = (TextView)convertView.findViewById(R.id.sentprofiledes);
             desc.setText(description);
             convertView.setClickable(false);
-            ImageView imageView = (ImageView) convertView.findViewById(R.id.imagePostSent);
-            imageView.setImageBitmap(bitmap);
+            final ImageView imageView = (ImageView) convertView.findViewById(R.id.imagePostSent);
+            final ByteArrayOutputStream imageStream = new ByteArrayOutputStream();
+
+            final Handler handler = new Handler();
+
+            Thread th = new Thread(new Runnable() {
+                public void run() {
+
+                    try {
+
+                        long imageLength = 0;
+
+                        ImageManager.GetImage(bitmap, imageStream, imageLength);
+
+                        handler.post(new Runnable() {
+
+                            public void run() {
+                                byte[] buffer = imageStream.toByteArray();
+
+                                Bitmap bitmap1 = BitmapFactory.decodeByteArray(buffer, 0, buffer.length);
+                                //bitmap.compress(Bitmap.CompressFormat.PNG, 0, imageStream);
+                                imageView.setImageBitmap(bitmap1);
+                            }
+                        });
+                    }
+                    catch(Exception ex) {
+                        //final String exceptionMessage = ex.getMessage();
+                        handler.post(new Runnable() {
+                            public void run() {
+                                //Toast.makeText(CommentListAdapter.this.context, exceptionMessage, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                }});
+            th.start();
             TextView txt1 = (TextView)convertView.findViewById(R.id.rate);
             txt1.setVisibility(View.GONE);
         }
@@ -64,7 +102,7 @@ public class CommentListAdapter extends ArrayAdapter<UserProfile> {
             phno.setText(Users.get(position).getTo());
                 TextView des = (TextView) convertView.findViewById(R.id.sentComment);
                 des.setText(Users.get(position).getAmount());
-                ImageView img = (ImageView) convertView.findViewById(R.id.sentImage);
+                final ImageView img = (ImageView) convertView.findViewById(R.id.sentImage);
 
 
             img.requestLayout();
@@ -72,7 +110,42 @@ public class CommentListAdapter extends ArrayAdapter<UserProfile> {
             img.getLayoutParams().width=150;
             img.setScaleType(ImageView.ScaleType.FIT_XY);
 
-            img.setImageBitmap(Users.get(position).getBitmap());
+            //img.setImageBitmap(Users.get(position).getBitmap());
+            final ByteArrayOutputStream imageStream = new ByteArrayOutputStream();
+
+            final Handler handler = new Handler();
+
+            Thread th = new Thread(new Runnable() {
+                public void run() {
+
+                    try {
+
+                        long imageLength = 0;
+
+                        ImageManager.GetImage(Users.get(position).getBitmap(), imageStream, imageLength);
+
+
+                        handler.post(new Runnable() {
+
+                            public void run() {
+                                byte[] buffer = imageStream.toByteArray();
+
+                                Bitmap bitmap1 = BitmapFactory.decodeByteArray(buffer, 0, buffer.length);
+                                img.setImageBitmap(bitmap1);
+                            }
+                        });
+                    }
+                    catch(Exception ex) {
+                        final String exceptionMessage = ex.getMessage();
+                        handler.post(new Runnable() {
+                            public void run() {
+                                Toast.makeText(CommentListAdapter.this.context, exceptionMessage, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                }});
+            th.start();
+
             Button accept = (Button) convertView.findViewById(R.id.accept);
             dbHelper = new DBHelper(CommentListAdapter.this.context);
 
@@ -89,20 +162,22 @@ public class CommentListAdapter extends ArrayAdapter<UserProfile> {
             accept.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(getContext(),Users.get(position).getTo(),Toast.LENGTH_SHORT).show();
+
                     dbHelper.open();
-                    dbHelper.changeStatus(Users.get(position).getTo(),description,date1);
-                    boolean i = dbHelper.deletePost(userId,Users.get(position).getTo(),description,date1);
-
+                    ConnectionHelper connectionHelper =  new ConnectionHelper();
+                    connection = connectionHelper.connectionclasss();        // Connect to database
+                    if (connection == null) {
+                        Toast.makeText(CommentListAdapter.this.context, "Check your internet Access", Toast.LENGTH_SHORT).show();
+                    }else {
+                        dbHelper.changeStatus(Users.get(position).getTo(), description, date1,connection );
+                        boolean i = dbHelper.deletePost(userId, Users.get(position).getTo(), description, date1,connection);
+                        Intent intent = new Intent(CommentListAdapter.this.context,DisplayImage.class);
+                        context.startActivity(intent);
+                    }
                     dbHelper.close();
-
                 }
             });
-
         }
         return convertView;
     }
-
-
-
 }

@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="androids.newapp.MyProfile"
+    tools:showIn="@layout/app_bar_my_profile"
+    android:background="@color/colorAccent">
+    <ScrollView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:fitsSystemWindows="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="3">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="center">
+
+            <RelativeLayout
+                android:layout_marginTop="30dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:paddingLeft="15dp"
+                android:layout_alignParentRight="true"
+                android:layout_marginBottom="10dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true">
+                <ImageView
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
+                    android:id="@+id/my_image"
+                    android:layout_alignParentTop="true"
+                    android:layout_centerHorizontal="true" />
+                <TextView
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/user_name_text"
+                    android:text="Name  "
+                    android:layout_marginBottom="10dp"
+                    android:textSize="20dp"
+                    android:textStyle="bold"
+                    android:paddingTop="10dp"
+                    android:paddingLeft="5dp"
+                    android:textColor="@color/colorButton"
+                    android:layout_below="@+id/my_image"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/user_name"
+                    android:textColor="@color/colorButton"
+                    android:layout_marginBottom="10dp"
+                    android:paddingTop="10dp"
+                    android:text="User Name Value"
+                    android:textSize="20dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_below="@+id/my_image"
+                    android:layout_toEndOf="@+id/user_name_text"
+                    android:layout_toRightOf="@+id/user_name_text" />
+
+
+                <TextView
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:text="Mobile No  "
+                    android:paddingTop="3dp"
+                    android:textColor="@color/colorButton"
+                    android:layout_below="@+id/user_name_text"
+                    android:textSize="20dp"
+                    android:id="@+id/mobile_number_text"
+                    android:paddingLeft="5dp"
+                    android:textStyle="bold"
+                    android:layout_toLeftOf="@+id/user_name"
+                    android:layout_marginBottom="10dp"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/user_name"
+                    android:layout_marginBottom="10dp"
+                    android:id="@+id/mobile_number"
+                    android:textColor="@color/colorButton"
+                    android:paddingTop="3dp"
+                    android:paddingRight="5dp"
+                    android:text="Mobile"
+                    android:layout_toRightOf="@+id/mobile_number_text"
+                    android:textSize="20dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true" />
+
+                <TextView
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="3dp"
+                    android:id="@+id/landmark_text"
+                    android:textColor="@color/colorButton"
+                    android:layout_below="@+id/mobile_number_text"
+                    android:text="Address  "
+                    android:textStyle="bold"
+                    android:layout_marginBottom="10dp"
+                    android:textSize="20dp"
+                    android:paddingLeft="5dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:textColor="@color/colorButton"
+                    android:id="@+id/landmark"
+                    android:paddingTop="3dp"
+                    android:layout_below="@+id/mobile_number"
+                    android:layout_toRightOf="@+id/landmark_text"
+                    android:text="Landmark"
+                    android:textSize="20dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true" />
+
+                <TextView
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="3dp"
+                    android:id="@+id/city_text"
+                    android:textColor="@color/colorButton"
+                    android:layout_below="@+id/landmark_text"
+                    android:layout_marginBottom="10dp"
+                    android:text="City  "
+                    android:textSize="20dp"
+                    android:textStyle="bold"
+                    android:paddingLeft="5dp"
+                    android:layout_toLeftOf="@+id/landmark"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/city"
+                    android:layout_marginBottom="10dp"
+                    android:paddingTop="3dp"
+                    android:layout_below="@+id/landmark"
+                    android:layout_toRightOf="@+id/landmark_text"
+                    android:text="City"
+                    android:textColor="@color/colorButton"
+                    android:textSize="20dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true" />
+                <com.iarcuschin.simpleratingbar.SimpleRatingBar
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/city_text"
+                    android:layout_centerHorizontal="true"
+                    android:id="@+id/my_rating"
+                    android:layout_marginTop="10dp"
+                    app:srb_fillColor="#F9A825"
+                    app:srb_numberOfStars="5"
+                    app:srb_borderColor="#F9A825"
+                    app:srb_isIndicator="true"
+                    />
+            </RelativeLayout>
+
+        </RelativeLayout>
+        </LinearLayout>
+    </ScrollView>
+    </android.support.constraint.ConstraintLayout>

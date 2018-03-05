@@ -7,7 +7,7 @@ import android.graphics.Bitmap;
  */
 
 public class UserProfile implements Comparable<UserProfile>{
-    private Bitmap bmp;
+    private String bmp;
     private String date;
     private String description;
     private String from;
@@ -19,21 +19,21 @@ public class UserProfile implements Comparable<UserProfile>{
 
     String amount;
 
-    public UserProfile(Bitmap bitmap,String to,String status,String msg){
+    public UserProfile(String bitmap,String to,String status,String msg){
         this.to = to;
         this.bmp = bitmap;
         this.amount = msg;
         this.category = "comment";
         this.Status = status;
     }
-    public UserProfile(Bitmap bitmap,String date,String description,String from, String name){
+    public UserProfile(String  bitmap,String date,String description,String from, String name){
         this.bmp = bitmap;
         this.date = date;
         this.description = description;
         this.from = from;
         this.name = name;
     }
-    public UserProfile(Bitmap bitmap,String date,String description,String from, String name,String msg, String category){
+    public UserProfile(String bitmap,String date,String description,String from, String name,String msg, String category){
         this.bmp = bitmap;
         this.date = date;
         this.description = description;
@@ -66,7 +66,7 @@ public class UserProfile implements Comparable<UserProfile>{
     public String getFrom(){
         return from;
     }
-    public Bitmap getBitmap() {
+    public String getBitmap() {
         return bmp;
     }
     public String getName(){

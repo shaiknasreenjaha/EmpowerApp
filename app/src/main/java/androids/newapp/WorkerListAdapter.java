@@ -1,6 +1,9 @@
 package androids.newapp;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,9 +11,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.iarcuschin.simpleratingbar.SimpleRatingBar;
-
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
 /**
@@ -28,9 +29,7 @@ public class WorkerListAdapter extends BaseAdapter {
     public WorkerListAdapter(Context c,ArrayList<UserProfile> up) {
         this.context = c;
         this.worksDone = up;
-        for(UserProfile user:worksDone){
-            Toast.makeText(context,user.getDescription(),Toast.LENGTH_SHORT).show();
-        }
+
     }
 
     @Override
@@ -49,7 +48,7 @@ public class WorkerListAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater;
         final HolderView holder;
 
@@ -69,7 +68,46 @@ public class WorkerListAdapter extends BaseAdapter {
 
 
 
-        holder.circleImageView.setImageBitmap(worksDone.get(position).getBitmap());
+        holder.circleImageView.requestLayout();
+        holder.circleImageView.getLayoutParams().height = 500;
+        holder.circleImageView.getLayoutParams().width = 500;
+        holder.circleImageView.setScaleType(ImageView.ScaleType.FIT_XY);
+
+        //holder.circleImageView.setImageBitmap(worksDone.get(position).getBitmap());
+        final ByteArrayOutputStream imageStream = new ByteArrayOutputStream();
+
+        final Handler handler = new Handler();
+
+        Thread th = new Thread(new Runnable() {
+            public void run() {
+
+                try {
+
+                    long imageLength = 0;
+
+                    ImageManager.GetImage(worksDone.get(position).getBitmap(), imageStream, imageLength);
+
+                    handler.post(new Runnable() {
+
+                        public void run() {
+                            byte[] buffer = imageStream.toByteArray();
+
+                            Bitmap bitmap = BitmapFactory.decodeByteArray(buffer, 0, buffer.length);
+                            //bitmap.compress(Bitmap.CompressFormat.PNG, 0, imageStream);
+                            holder.circleImageView.setImageBitmap(bitmap);
+                        }
+                    });
+                }
+                catch(Exception ex) {
+                    final String exceptionMessage = ex.getMessage();
+                    handler.post(new Runnable() {
+                        public void run() {
+                            Toast.makeText(WorkerListAdapter.this.context, exceptionMessage, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }});
+        th.start();
 
         holder.dateofpost.setText("Date : " + worksDone.get(position).getDate());
         holder.description.setText("Description : " + worksDone.get(position).getDescription());

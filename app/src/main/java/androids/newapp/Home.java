@@ -4,12 +4,16 @@ package androids.newapp;
  * Created by Lenovo on 07-Feb-18.
  */
 import android.content.Intent;
+import android.database.SQLException;
 import android.os.Bundle;
 import android.view.View;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -24,6 +28,10 @@ public class Home extends AppCompatActivity    {
     SessionManager session;
     String userid;
     Button register;
+    Connection connect;
+    String ConnectionResult = "";
+    String query;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,7 +40,7 @@ public class Home extends AppCompatActivity    {
         session = new SessionManager(getApplicationContext());
         HashMap<String, String> user = session.getUserDetails();
         userid = user.get(SessionManager.KEY_NAME);
-        //Field = getIntent().getExtras().getString("technician");
+
         Field = IntentData.skillIntent;
         register = (Button)findViewById(R.id.register);
         register.setText("REGISTER AS "+Field);
@@ -44,32 +52,43 @@ public class Home extends AppCompatActivity    {
                 startActivity(intent);
             }
         });
-        //Database
+
         DbHelper = new DBHelper(this);
         DbHelper.open();
-        //userList.add(new User("", ""));
-        if(session.isLoggedIn() == false) {
-            userList = DbHelper.retrieveUsers(Field);
-        }else{
 
-            register.setVisibility(View.GONE);
-            userList = DbHelper.retrieveUsersforLogin(Field, userid);
-        }
-        DbHelper.close();
-        if(userList != null && userList.size()>0) {
-            TextView noWorkers = (TextView)findViewById(R.id.no_workers);
-            noWorkers.setText("");
-            listView = (ListView) findViewById(R.id.list);
-            listViewAdapter = new ListViewAdapter(this, userList, Field);
-            listView.setAdapter(listViewAdapter);
-        }
-        else{
-            Button bid = (Button) findViewById(R.id.button2);
-            bid.setVisibility(View.INVISIBLE);
+
+        try {
+            ConnectionHelper conStr = new ConnectionHelper();
+            connect = conStr.connectionclasss();
+            if (connect == null) {
+                ConnectionResult = "Check Your Internet Access!";
+            } else {
+                if(session.isLoggedIn() == false) {
+                    userList = DbHelper.retrieveUsers(Field,connect);
+                }else{
+                    register.setVisibility(View.GONE);
+                    userList = DbHelper.retrieveUsersforLogin(Field, userid,connect);
+                }
+                DbHelper.close();
+
+                if(userList != null && userList.size()>0) {
+                    TextView noWorkers = (TextView)findViewById(R.id.no_workers);
+                    noWorkers.setText("");
+                    listView = (ListView) findViewById(R.id.list);
+
+                    listViewAdapter = new ListViewAdapter(this, userList, Field);
+                    listView.setAdapter(listViewAdapter);
+                }
+                else{
+                    Button bid = (Button) findViewById(R.id.button2);
+                    bid.setVisibility(View.INVISIBLE);
+                }
+            }
+
+        }catch (SQLException s){
+            s.printStackTrace();
         }
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-
     }
 
 

@@ -5,38 +5,47 @@ package androids.newapp;
  */
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.iarcuschin.simpleratingbar.SimpleRatingBar;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 
 public class ListViewAdapter extends BaseAdapter {
     Context context;
+    ProgressDialog progressDialog;
     String Field;
     ArrayList<User> Users = new ArrayList<User>();
+    LayoutInflater inflater;
 
 
     public ListViewAdapter(Context c, ArrayList<User> users,String field){
         this.context = c;
         this.Users = users;
         this.Field = field;
+        inflater = (LayoutInflater)c.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     @Override
@@ -50,73 +59,90 @@ public class ListViewAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(final int position, View convertView, ViewGroup parent) {
-        final Holder holder;
-        LayoutInflater inflater;
-        SessionManager session = new SessionManager(this.context);
+    public Object getItem(int position) {
+        return Users.get(position);
+    }
 
-        if(convertView == null){
-            inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.listview_layout, null);
-            holder = new Holder();
-            holder.circleImageView = (ImageView) convertView.findViewById(R.id.circleImageView);
-            holder.textView = (TextView) convertView.findViewById(R.id.name);
-            holder.phno = (TextView) convertView.findViewById(R.id.no);
-            holder.rating = (SimpleRatingBar)  convertView.findViewById(R.id.ratingBar);
-            convertView.setTag(holder);
-        } else {
-            holder = (Holder) convertView.getTag();
-        }
+    @Override
+    public View getView(final int position, View convertView, ViewGroup parent) {
+
+        convertView = inflater.inflate(R.layout.listview_layout,null);
+        TextView phno = (TextView) convertView.findViewById(R.id.no);
+        phno.setText(Users.get(position).getPhoneNo());
+        TextView name = (TextView) convertView.findViewById(R.id.name);
+        name.setText(Users.get(position).getName());
+        final ImageView img = (ImageView) convertView.findViewById(R.id.circleImageView);
+        SimpleRatingBar ratingBar = (SimpleRatingBar)convertView.findViewById(R.id.ratingBar);
+        ratingBar.setRating(Users.get(position).getRating());
+        img.requestLayout();
+        img.getLayoutParams().height=150;
+        img.getLayoutParams().width=150;
+        img.setScaleType(ImageView.ScaleType.FIT_XY);
+
+        //img.setImageBitmap(Users.get(position).getBitmap());
+        final ByteArrayOutputStream imageStream = new ByteArrayOutputStream();
+        final Handler handler = new Handler();
+        Thread th = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    long imageLength = 0;
+                    ImageManager.GetImage(Users.get(position).getUserImage(), imageStream, imageLength);
+                    handler.post(new Runnable() {
+                        public void run() {
+                            byte[] buffer = imageStream.toByteArray();
+                            Bitmap bitmap1 = BitmapFactory.decodeByteArray(buffer, 0, buffer.length);
+                            img.setImageBitmap(bitmap1);
+                           // Toast.makeText(ListViewAdapter.this.context,"image set",Toast.LENGTH_SHORT).show();
+                           // progressDialog.dismiss();
+                        }
+                    });
+                }
+                catch(Exception ex) {
+                   // final String exceptionMessage = ex.getMessage();
+                    handler.post(new Runnable() {
+                        public void run() {
+                            ex.printStackTrace();
+                            //Toast.makeText(ListViewAdapter.this.context, exceptionMessage, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }});
+        th.start();
 
         ImageButton call = (ImageButton) convertView.findViewById(R.id.call);
         ImageButton msg = (ImageButton) convertView.findViewById(R.id.message);
-            call.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        if(checkTelephonePermission())
-                            callNumber(Users.get(position).getPhoneNo());
-                        else
-                            Toast.makeText(ListViewAdapter.this.context,"No permissions",Toast.LENGTH_SHORT).show();
-                    }
-
+        call.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if(checkTelephonePermission())
+                        callNumber(Users.get(position).getPhoneNo());
+                    else
+                        Toast.makeText(ListViewAdapter.this.context,"No permissions",Toast.LENGTH_SHORT).show();
                 }
-            });
+            }
+        });
 
-            msg.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    sendSMSMessage(Users.get(position).getPhoneNo());
-                }
-            });
-
-        holder.circleImageView.requestLayout();
-        holder.circleImageView.getLayoutParams().height=200;
-        holder.circleImageView.getLayoutParams().width=200;
-        holder.circleImageView.setScaleType(ImageView.ScaleType.FIT_XY);
-
-        holder.circleImageView.setImageBitmap(Users.get(position).getBitmap());
-
-            holder.textView.setText(Users.get(position).getName());
-            holder.phno.setText(Users.get(position).getPhoneNo());
-            holder.rating.setRating(Users.get(position).getRating());
-
+        msg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendSMSMessage(Users.get(position).getPhoneNo());
+            }
+        });
 
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.e("Clicked",Users.get(position).getUserImage());
+                IntentData.intentClass = 10;
                 Intent intent= new Intent(ListViewAdapter.this.context,Workers.class);
                 IntentData.skillIntent = Field;
                 IntentData.ToIntent = Users.get(position).getPhoneNo();
                 context.startActivity(intent);
-
             }
         });
-
         return convertView;
     }
-
 
     private void sendSMSMessage(String phno) {
         try {
@@ -139,7 +165,6 @@ public class ListViewAdapter extends BaseAdapter {
         }
         context.startActivity(callIntent);
     }
-
 
 
     public static final int MY_PERMISSIONS_REQUEST_CALL = 1;
@@ -171,16 +196,5 @@ public class ListViewAdapter extends BaseAdapter {
         return true;
     }
 
-    @Override
-    public Object getItem(int position) {
-        return Users.get(position);
-    }
 
-
-    public class Holder{
-        ImageView circleImageView;
-        TextView textView;
-        TextView phno;
-        SimpleRatingBar rating;
-    }
 }
