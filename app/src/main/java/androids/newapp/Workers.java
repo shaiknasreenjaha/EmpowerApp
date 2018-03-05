@@ -10,7 +10,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import java.sql.Connection;
 import java.util.ArrayList;
 
 /**
@@ -24,6 +24,7 @@ public class Workers extends AppCompatActivity {
     String Field;
     ArrayList<UserProfile> userProfiles = new ArrayList<UserProfile>();
     DBHelper dbHelper;
+    Connection connect;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,21 +41,27 @@ public class Workers extends AppCompatActivity {
         }
 
         dbHelper = new DBHelper(this);
+
         dbHelper.open();
-        //userProfiles.add(new UserProfile("","","","","","",""));
-        //userProfiles = dbHelper.retrieveProfileDetails(getIntent().getStringExtra("phoneno"));
-        userProfiles = dbHelper.retrieveProfileDetails(IntentData.ToIntent);
-        dbHelper.close();
+        ConnectionHelper conStr=new ConnectionHelper();
+        connect =conStr.connectionclasss();
+        if (connect == null)          {
+            Toast.makeText(getApplicationContext(), "Check Your Internet Access!",Toast.LENGTH_SHORT).show();
+        }
+        else {
 
-        if(userProfiles!=null && userProfiles.size()>0) {
-            TextView noPosts = (TextView) findViewById(R.id.no_posts);
-            noPosts.setText("");
-            listView = (ListView) findViewById(R.id.workers_list);
+            userProfiles = dbHelper.retrieveProfileDetails(IntentData.ToIntent, connect);
+            dbHelper.close();
 
-            workerListAdapter = new WorkerListAdapter(getApplicationContext(), userProfiles);
-            listView.setAdapter(workerListAdapter);
-            //Field = getIntent().getStringExtra("technician");
-            Field = IntentData.skillIntent;
+            if (userProfiles != null && userProfiles.size() > 0) {
+                TextView noPosts = (TextView) findViewById(R.id.no_posts);
+                noPosts.setText("");
+                listView = (ListView) findViewById(R.id.workers_list);
+
+                workerListAdapter = new WorkerListAdapter(getApplicationContext(), userProfiles);
+                listView.setAdapter(workerListAdapter);
+                Field = IntentData.skillIntent;
+            }
         }
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -63,8 +70,14 @@ public class Workers extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        Intent intent = new Intent(Workers.this,Home.class);
-        startActivity(intent);
+        if(IntentData.intentClass == 10) {
+            Intent intent = new Intent(Workers.this, Home.class);
+            startActivity(intent);
+        }
+        if(IntentData.intentClass == 11) {
+            Intent intent = new Intent(Workers.this, DispalyProfile.class);
+            startActivity(intent);
+        }
     }
 
     public void Interest(View v){

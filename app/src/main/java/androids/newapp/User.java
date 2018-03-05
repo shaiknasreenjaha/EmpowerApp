@@ -7,7 +7,7 @@ package androids.newapp;
     import android.graphics.Bitmap;
 
 public class User {
-    private Bitmap bmp;
+    private String userImage;
     private String name;
     private String phoneNo;
     private Float rating;
@@ -22,27 +22,27 @@ public class User {
 
     }
 
-    public User(Bitmap b, String city, String pwd, String address, String skill) {
-        bmp = b;
+    public User(String  b, String city, String pwd, String address, String skill) {
+        userImage = b;
         this.city = city;
         this.password = pwd;
         this.skill = skill;
         this.address = address;
     }
 
-    public User(Bitmap b, String n, String k,Float r) {
-        bmp = b;
+
+
+
+
+    public User(String  b, String n, String k,Float r,String address,String city) {
+        userImage = b;
         name = n;
         phoneNo = k;
         rating = r;
+        this.address = address;
+        this.city = city;
     }
 
-
-    public User(Bitmap b, String c, String ad) {
-        bmp = b;
-        city = c;
-        address = ad;
-    }
 
     public String getPassword(){return password;}
 
@@ -57,9 +57,11 @@ public class User {
         return address;
     }
 
-    public Bitmap getBitmap() {
-        return bmp;
+    public String getUserImage() {
+        return userImage;
     }
+
+
 
     public String getName() {
         return name;

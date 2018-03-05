@@ -1,12 +1,10 @@
 package androids.newapp;
 
 import android.Manifest;
-import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.SQLException;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -20,12 +18,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import java.sql.Connection;
 
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
      Button btn;
-    DBHelper dbHelper;
+    DBHelper dbHelper;Connection connect;
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     SessionManager sessionManager;
 
@@ -51,34 +50,45 @@ public class MainActivity extends AppCompatActivity
 
 
 
-        if(sessionManager.isLoggedIn()){
-            View header = (((NavigationView) findViewById(R.id.nav_view)).getHeaderView(0));
-            TextView name;
-            name = (TextView) header.findViewById(R.id.personName);
-            dbHelper = new DBHelper(MainActivity.this);
-            dbHelper.open();
-            String name1 = dbHelper.getUserName(phoneNo);
-             name.setText(name1);
-        }
+        try {
+            ConnectionHelper conStr = new ConnectionHelper();
+            connect = conStr.connectionclasss();        // Connect to database
+            if (connect == null) {
+                Toast.makeText(getApplicationContext(), "Check your internet Access", Toast.LENGTH_SHORT).show();
+            } else {
 
 
-        if(CheckingPermissionIsEnabledOrNot())   {
-            Toast.makeText(MainActivity.this, "All Permissions Granted Successfully", Toast.LENGTH_LONG).show();
-        }
-        else {
-            RequestMultiplePermission();
-        }
+                if(sessionManager.isLoggedIn()){
+                    View header = (((NavigationView) findViewById(R.id.nav_view)).getHeaderView(0));
+                    TextView name;
+                    name = (TextView) header.findViewById(R.id.personName);
+                    dbHelper = new DBHelper(MainActivity.this);
+                    dbHelper.open();
+                    String name1 = dbHelper.getUserName(phoneNo,connect);
+                    name.setText(name1);
+                }
 
+                if(CheckingPermissionIsEnabledOrNot())   {
+                    Toast.makeText(MainActivity.this, "All Permissions Granted Successfully", Toast.LENGTH_LONG).show();
+                }
+                else {
+                    RequestMultiplePermission();
+                }
 
-        btn = (Button) findViewById(R.id.getStarted);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this,Hire.class);
-                startActivity(intent);
-
+                btn = (Button) findViewById(R.id.getStarted);
+                btn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(MainActivity.this,Hire.class);
+                        startActivity(intent);
+                    }
+                });
             }
-        });
+        }catch(SQLException s){
+            s.printStackTrace();
+
+
+        }
 
     }
 
@@ -123,9 +133,6 @@ public class MainActivity extends AppCompatActivity
         int ForthPermissionResult = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION);
         int FifthPermissionResult = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
         int SixthPermissionResult = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
-
-
         return FirstPermissionResult == PackageManager.PERMISSION_GRANTED &&
                 SecondPermissionResult == PackageManager.PERMISSION_GRANTED &&
                 ThirdPermissionResult == PackageManager.PERMISSION_GRANTED &&
@@ -162,10 +169,6 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-
-
-
-
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -187,6 +190,10 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.nav_logout:
                 intent = new Intent(MainActivity.this, Logout.class);
+                startActivity(intent);
+                break;
+            case R.id.nav_history:
+                intent = new Intent(MainActivity.this, MyProfile.class);
                 startActivity(intent);
                 break;
         }

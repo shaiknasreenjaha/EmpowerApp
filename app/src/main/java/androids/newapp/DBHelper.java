@@ -10,6 +10,10 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 
 public class DBHelper {
@@ -31,7 +35,7 @@ public class DBHelper {
     private static final String IMAGES_TABLE = "USER";
 
 
-    private static final String CREATE_IMAGES_TABLE =
+    /*private static final String CREATE_IMAGES_TABLE =
             "CREATE TABLE " + IMAGES_TABLE + " ("
                     + IMAGE + " BLOB NOT NULL," + "Name TEXT,PhoneNo TEXT PRIMARY KEY,Password TEXT,Skill TEXT,Address TEXT,City TEXT,Rating FLOAT);";
 
@@ -39,17 +43,7 @@ public class DBHelper {
             "CREATE TABLE " + "POST" + " ("
                     + IMAGE + " BLOB NOT NULL," + "ToUser TEXT,FromUser TEXT,DateOfPost TEXT,Description TEXT,Message TEXT,Status TEXT,UserRating FLOAT,FOREIGN KEY(ToUser) REFERENCES USER (PhoneNo));";
 
-    public User showProfile(String phneNo) {
-        Cursor showprofile = mDb.query(true,"USER",new String[] {IMAGE,"Rating","Name"},"PhoneNo"+"=?",new String[]{phneNo},null,null,null,null,null);
-        if(showprofile.moveToFirst()){
-            byte[] blob = showprofile.getBlob(showprofile.getColumnIndex(IMAGE));
-            String name = showprofile.getString(showprofile.getColumnIndex("Name"));
-            Float rating = showprofile.getFloat(showprofile.getColumnIndex("Rating"));
-            return new User(Utils.getImage(blob),name,phneNo,rating);
-        }
-        return null;
-    }
-
+   */
 
     public static class DatabaseHelper extends SQLiteOpenHelper {
         DatabaseHelper(Context context) {
@@ -57,15 +51,15 @@ public class DBHelper {
         }
 
         public void onCreate(SQLiteDatabase db) {
-            db.execSQL(CREATE_IMAGES_TABLE);
-            db.execSQL(Post_Table);
+           // db.execSQL(CREATE_IMAGES_TABLE);
+            //db.execSQL(Post_Table);
         }
 
 
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            db.execSQL("DROP TABLE IF EXISTS " + IMAGES_TABLE);
-            db.execSQL("DROP TABLE IF EXISTS " + "POST");
-            onCreate(db);
+           // db.execSQL("DROP TABLE IF EXISTS " + IMAGES_TABLE);
+           // db.execSQL("DROP TABLE IF EXISTS " + "POST");
+           // onCreate(db);
         }
     }
 
@@ -90,240 +84,316 @@ public class DBHelper {
 
 
 
+    public User showProfile(String phneNo, Connection connection) {
 
-    public String provideLogin(String phone) {
-        String password = "";
-        Cursor cursor1 = mDb.query(true,"USER",new String[] {"Password"},"PhoneNo"+"=?",new String[] {phone},null,null,null,null,null);
-        if(cursor1.moveToFirst()){
-            password = cursor1.getString(cursor1.getColumnIndex("Password"));
-            cursor1.close();
+        String query = "SELECT * FROM worker WHERE PhoneNo = '"+phneNo+"'";
+        Statement statement = null;
+        try {
+            statement = connection.createStatement();
+            ResultSet showprofile = statement.executeQuery(query);
+            if(showprofile.next()){
+                String blob = showprofile.getString("user_photo");
+                String name = showprofile.getString("Fname");
+                Float rating = showprofile.getFloat("rating");
+                String address = showprofile.getString("useraddress");
+                String city = showprofile.getString("city");
+                return new User(blob,name,phneNo,rating,address,city);
+            }
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
         }
-        return password;
+        return null;
     }
+
+
 
 
     //update details
-    public boolean UpdateUserDetails(byte[] imageBytes,String phno,String address,String city,String password){
-        ContentValues cv = new ContentValues();
-        cv.put(IMAGE,imageBytes);
-        cv.put("Password",password);
-        cv.put("Address",address.toLowerCase());
-        cv.put("City",city.toLowerCase());
-        mDb.update("USER",cv,"PhoneNo = ?",new String[] {phno});
-        return true;
-    }
+    public boolean UpdateUserDetails(String image,String phno,String address,String city,String password,Connection connection){
 
+        String query = "update worker set  user_photo = '"+image+"',useraddress = '"+address+"',City ='"+city+"',ppassword = '"+password+"'  where PhoneNo ='"+ phno+"'";
 
-    // Insert the image to the Sqlite DB
-
-    public boolean insertImage(byte[] imageBytes,String name, String phoneNo, String password, String skill, String address,String city,Float rating) {
-        ContentValues cv = new ContentValues();
-        cv.put(IMAGE, imageBytes);
-        cv.put("Name",name);
-        cv.put("PhoneNo",phoneNo);
-        cv.put("Password",password);
-        cv.put("Skill",skill);
-        cv.put("Address",address);
-        cv.put("City", city);
-        cv.put("Rating",rating);
-       long i = mDb.insert("USER", null, cv);
-        if(i == -1)
-            return false;
-        return true;
-    }
-
-
-    public boolean updateUserRating(String to){
-        Cursor updateRating  = mDb.query("POST",new String[]{"FromUser"},"UserRating"+"!= "+0.0 +" AND ToUser"+"=" +to,
-                null,null,null,null);
-
-        Cursor ratingSum = mDb.rawQuery("SELECT SUM(UserRating) as Total FROM " + "POST" + " WHERE ToUser = "+to, null);
-        long count = updateRating.getCount();
-        updateRating.close();
-        float avg,total=0;
-        if (ratingSum.moveToFirst()) {
-
-             total = ratingSum.getFloat(ratingSum.getColumnIndex("Total"));
-
+        Statement stm = null;
+        //Log.e("query",query);
+        try {
+            stm = connection.createStatement();
+            int result = stm.executeUpdate(query);
+           // Log.e("return",result+"");
+            return true;
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+            return  false;
         }
-        avg = total / count;
-        ratingSum.close();
-
-        ContentValues cv2 = new ContentValues();
-        cv2.put("Rating",avg);
-        return mDb.update("USER",cv2,"PhoneNo = ?",new String[]{to})>0;
-
     }
 
 
-    public float getRating(String to, String userId, String descr, String dateIntent) {
-        Cursor rateUer = mDb.query(true, "POST",
-                new String[] {"UserRating"}, "ToUser"+"=?"+"AND FromUser"+"=?"+"AND Description"+"=?"+"AND DateOfPost"+"=?",
-                new String[] {to,userId,descr,dateIntent},null,null,null,null,null);
-        float rating = 0;
-        if(rateUer.moveToFirst()){
-            rating = rateUer.getFloat(rateUer.getColumnIndex("UserRating"));
+    public boolean updateUserRating(String to, Connection connection){
+
+        String query = "SELECT COUNT(*) as count FROM postings WHERE UserRating != 0.0 AND ToUser = '"+to+"'";
+        //Log.e("query",query);
+        Statement statement = null;
+        try {
+            statement = connection.createStatement();
+            ResultSet rs = statement.executeQuery(query);
+            if (rs.next()) {
+                long count = rs.getInt("count");
+                String query1 = "SELECT SUM(UserRating) as Total FROM postings WHERE ToUser = '"+to+"'";
+               // Log.e("query",query1);
+                statement = connection.createStatement();
+                ResultSet rs1 = statement.executeQuery(query1);
+                float sum = 0.0f;
+                if(rs1.next()) {
+                    sum = rs1.getFloat("Total");
+                   // Log.e("Sum",sum+"");
+                 //   Log.e("Count",count+"");
+                    float avg = sum/count;
+               //     Log.e("Avg",avg+"");
+                    String query2 = "UPDATE worker SET rating = '"+avg+"'"+" WHERE PhoneNo = '"+to+"'";
+             //       Log.e("query",query2);
+                    statement = connection.createStatement();
+                    int i = statement.executeUpdate(query2);
+                    return i > 0;
+                }
+            }
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+           // Log.e("cgh",e.getMessage());
         }
-        rateUer.close();
+        return false;
+    }
+
+
+    public float getRating(String to, String userId, String descr, String dateIntent,Connection connection) {
+
+
+        String rate = "SELECT * FROM postings WHERE ToUser = '"+to+"' AND FromUser = '"+userId+"' AND DateOfPost = '"+dateIntent+"' AND " +
+                "pDescription = '"+descr+"'";
+        float rating = 0.0f;
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet rs = statement.executeQuery(rate);
+            if(rs.next())
+                rating = rs.getFloat("UserRating");
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+         //   Log.e("Exception",e.getMessage());
+        }
         return  rating;
     }
 
-    public boolean UpdateRating(String to,String from,String date,String desc,Float rating){
-        ContentValues contentValues1 = new ContentValues();
-        contentValues1.put("UserRating",rating);
-        return  mDb.update("POST",contentValues1,"ToUser = ?"+"AND Description = ?" + "AND DateOfPost = ?" + "AND FromUser = ?",
-                new String[]{to, desc, date,from}) > 0;
+    public boolean UpdateRating(String to,String from,String date,String desc,Float rating, Connection connection){
 
-        //mDb.update("POST",contentValues1,"ToUser = " )
+        String query = "UPDATE postings SET UserRating = '"+rating+"'"+" WHERE ToUser = '"+to+"'"+" AND pDescription = '"+desc+"'"+
+                " AND DateOfPost = '"+date+"'"+" AND FromUser = '"+from+"'";
+        Log.e("updateRating",query);
+        Statement st = null;
+        int i = 0;
+        try {
+            st = connection.createStatement();
+            i = st.executeUpdate(query);
+            Log.e("rating",i+"");
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+        }
+        return i > 0;
     }
 
 
 
-    public void insertPost(byte[] imageBytes, String toUser, String fromUser, String date, String desc) {
-        ContentValues cv1 = new ContentValues();
-        cv1.put(IMAGE, imageBytes);
-        cv1.put("ToUser",toUser);
-        cv1.put("FromUser",fromUser);
-        cv1.put("DateOfPost",date);
-        cv1.put("Description",desc);
-        cv1.put("Message","");
-        cv1.put("Status","notDone");
-        cv1.put("UserRating",0.0f);
-        mDb.insert("POST", null, cv1);
+    public void insertPost(String imageBytes, String toUser, String fromUser, String date, String desc,Connection connection) {
+
+        String amount = "";
+
+        String  query = "INSERT INTO postings VALUES ('"+imageBytes+"','"+toUser+"','"+fromUser+"','"+date+"','"+desc+"','"+amount+"','notDone',0.0)";
+        Log.e("qhkluery",query);
+
+        Statement statement = null;
+        try {
+
+            statement = connection.createStatement();
+            int result = statement.executeUpdate(query);
+            Log.e("qhkluery",result+"");
+
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+            Log.e("vhgv",e.getMessage());
+        }
     }
 
 
 
+    public String getUserName(String phn,Connection connection){
 
-    public String getUserName(String phn){
-        Cursor name = mDb.query(true,"USER",new String[]{"Name"},"PhoneNo"+"=?",new String[]{phn}, null,null,null,null,null);
-        if(name.moveToFirst())
-            return name.getString(name.getColumnIndex("Name"));
+        String query = "SELECT * FROM worker where PhoneNo = '"+phn+"'";
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet rs = statement.executeQuery(query);
+            if(rs.next())
+                return rs.getString("Fname");
+
+        }catch (java.sql.SQLException e) {
+            e.printStackTrace();
+        }
         return "no Name";
     }
 
-    public byte[] getUserImage(String phn){
-        Cursor img = mDb.query(true,"USER",new String[]{IMAGE},"PhoneNo"+"=?",new String[]{phn},null,null,null,null,null);
-        byte[] i = null;
-        if(img.moveToFirst())
-            i = img.getBlob(img.getColumnIndex(IMAGE));
-        return i;
+
+    public String getUserImage(String phn, Connection connection){
+        String query = "SELECT * FROM worker WHERE PhoneNo = '"+phn+"'";
+        Statement statement = null;
+        try {
+            statement = connection.createStatement();
+            ResultSet rs = statement.executeQuery(query);
+            if(rs.next())
+                return rs.getString("user_photo");
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 
 
-    public ArrayList<User>retrieveLocationsForMapLogin(String skill,String Phone){
-        Cursor locationlgin =  mDb.query(true,"USER",new String[]{"Address","PhoneNo"},"Skill"+"=?"+"AND PhoneNo"+"!=?",new String[]{skill,Phone},null,null,null,null,null);
-        if(locationlgin.moveToFirst()){
-            do{
-                String loc = locationlgin.getString(locationlgin.getColumnIndex("Address"));
-                String phno = locationlgin.getString(locationlgin.getColumnIndex("PhoneNo"));
+    public ArrayList<User>retrieveLocationsForMapLogin(String skill,String Phone,Connection connection){
+        String query = "SELECT * FROM worker WHERE convert(varchar,skill) = '"+skill+"' AND PhoneNo != '"+Phone+"'";
+        Log.e("query",query);
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet rs = statement.executeQuery(query);
+            while(rs.next()){
+                String loc = rs.getString("useraddress");
+                String phno = rs.getString("PhoneNo");
                 employeeList.add(new User(loc,phno));
-
-            }while(locationlgin.moveToNext());
+            }
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
         }
         return employeeList;
     }
 
-    public ArrayList<UserProfile> retrieveProfileDetails(String phno){
-        Cursor worker = mDb.query(true,"POST", new String[]{IMAGE,"Description","DateOfPost","FromUser"}, "ToUser"+"=?"+"AND Status"+"=?",
-                new String[] {phno,"done"}, null, null, null, null, null);
-        if(worker.moveToFirst()){
-            do{
-                byte[] blob = worker.getBlob(worker.getColumnIndex(IMAGE));
-                String from = worker.getString(worker.getColumnIndex("FromUser"));
-                String username = getUserName(from);
-                String description = worker.getString(worker.getColumnIndex("Description"));
-                String date = worker.getString(worker.getColumnIndex("DateOfPost"));
-                users.add(new UserProfile(Utils.getImage(blob),date,description,from,username));
-            }while (worker.moveToNext());
+
+
+    public ArrayList<UserProfile> retrieveProfileDetails(String phno,Connection connection){
+
+        String query = "SELECT DISTINCT * FROM postings WHERE ToUser = '"+phno+"' AND pStatus = 'done'";
+        Statement statement1 = null;
+        ResultSet resultSets = null;
+        try {
+            statement1 = connection.createStatement();
+
+            resultSets = statement1.executeQuery(query);
+           // Log.e("insent",resultSets.getType()+"");
+            while(resultSets.next()){
+                String blob = resultSets.getString("dimage");
+
+                String from = resultSets.getString("FromUser");
+                String username = getUserName(from,connection);
+                String description = resultSets.getString("pDescription");
+                String date = resultSets.getString("DateOfPost");
+                users.add(new UserProfile(blob,date,description,from,username));
+
+            }
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+         //   Log.e("errorsent",e.getMessage());
         }
-        worker.close();
         return users;
     }
 
 
-    /*public ArrayList<UserProfile> retrieveProfileDetails(String phno){
-        Cursor posting = mDb.query(true,"POST",new String[] {IMAGE,"FromUser","Description","DateOfPost"},
-                "ToUser"+"=?"+"AND Status"+"=?",new String[] {phno,"done"},null,null,null,null,null);
-        if(posting.moveToFirst()){
-            do{
-                byte[] blob = posting.getBlob(posting.getColumnIndex(IMAGE));
-                String from = posting.getString(posting.getColumnIndex("FromUser"));
-                String username = getUserName(from);
-                String desc = posting.getString(posting.getColumnIndex("Description"));
-                String dop = posting.getString(posting.getColumnIndex("DateOfPost"));
-                Profiles.add(new UserProfile(Utils.getImage(blob),dop,desc,from,username));
-            }while(posting.moveToNext());
+    public ArrayList<UserProfile> retrieveProfileDetails1(String phno,Connection connection){
+        String sentquery = "SELECT  DISTINCT dimage,FromUser,pDescription,DateOfPost  FROM postings WHERE FromUser = '"+phno+"'";
+        //Log.e("sentquery",sentquery);
+        Statement statement = null;
+        try {
+            statement = connection.createStatement();
+            ResultSet rs = statement.executeQuery(sentquery);
+            //Log.e("insent",rs.getFetchSize()+"sent size");
+            while (rs.next()){
+                String blob = rs.getString("dimage");
+                //Log.e("insent",blob);
+                String desc = rs.getString("pDescription");
+                String dop = rs.getString("DateOfPost");
+                Profiles.add(new UserProfile(blob,dop,desc,"","","","Sent"));
+            }
+
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+           // Log.e("errorsent",e.getMessage());
         }
-        posting.close();
-        return Profiles;
-    }*/
 
 
-    public ArrayList<UserProfile> retrieveProfileDetails1(String phno){
-        Cursor sent = mDb.query(true,"POST",new String[] {IMAGE,"Description","DateOfPost"},
-                "FromUser"+"=?",new String[] {phno},null,null,null,null,null);
-        if(sent.moveToFirst()){
-            do{
-                byte[] blob = sent.getBlob(sent.getColumnIndex(IMAGE));
-                //String from = sent.getString(sent.getColumnIndex("ToUser"));
-                //String username = getUserName(from);
-                String desc = sent.getString(sent.getColumnIndex("Description"));
-                String dop = sent.getString(sent.getColumnIndex("DateOfPost"));
-                Profiles.add(new UserProfile(Utils.getImage(blob),dop,desc,"","","","Sent"));
-            }while(sent.moveToNext());
+        String receivedquery = "SELECT * FROM postings WHERE ToUser = '"+phno+"' AND pStatus = 'notDone'";
+        //Log.e("receivedquery",receivedquery);
+        Statement rest = null;
+        try {
+            rest = connection.createStatement();
+            ResultSet receivesrs = rest.executeQuery(receivedquery);
+            while (receivesrs.next()){
+                String blob = receivesrs.getString("dimage");
+                String from = receivesrs.getString("FromUser");
+                String username = getUserName(from,connection);
+                String message = receivesrs.getString("pMessage");
+           //     Log.e("Inreceivedq",message);
+                String desc = receivesrs.getString("pDescription");
+                String dop = receivesrs.getString("DateOfPost");
+                Profiles.add(new UserProfile(blob,dop,desc,from,username,message,"Received"));
+            }
+
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+         //   Log.e("errorsent",e.getMessage());
         }
-        sent.close();
 
-        Cursor profile = mDb.query(true,"POST",new String[] {IMAGE,"FromUser","Description","DateOfPost","Message"},
-                "ToUser"+"=?"+"AND Status"+"=?",new String[] {phno,"notDone"},null,null,null,null,null);
-        if(profile.moveToFirst()){
-            do{
+        String donedquery = "SELECT * FROM postings WHERE ToUser = '"+phno+"' AND pStatus = 'done'";
+        Log.e("donedquery",donedquery);
+        Statement donest = null;
+        try {
+            donest = connection.createStatement();
+            ResultSet doners = donest.executeQuery(donedquery);
+         //   Log.e("size",doners.getFetchSize()+"");
+            while (doners.next()){
+                String blob = doners.getString("dimage");
+                Log.e("image1",blob);
+                String from = doners.getString("FromUser");
+                String username = getUserName(from,connection);
+                String message = doners.getString("pMessage");
+                String desc = doners.getString("pDescription");
+                String dop = doners.getString("DateOfPost");
+                Profiles.add(new UserProfile(blob,dop,desc,from,username,message,"Done"));
+            }
 
-                byte[] blob = profile.getBlob(profile.getColumnIndex(IMAGE));
-                String from = profile.getString(profile.getColumnIndex("FromUser"));
-                String username = getUserName(from);
-                String message = profile.getString(profile.getColumnIndex("Message"));
-                String desc = profile.getString(profile.getColumnIndex("Description"));
-                String dop = profile.getString(profile.getColumnIndex("DateOfPost"));
-                Profiles.add(new UserProfile(Utils.getImage(blob),dop,desc,from,username,message,"Received"));
-            }while(profile.moveToNext());
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+          //  Log.e("errorsent",e.getMessage());
         }
-        profile.close();
-
-        Cursor done = mDb.query(true,"POST",new String[] {IMAGE,"FromUser","Description","DateOfPost","Message"},
-                "ToUser"+"=?"+"AND Status"+"=?",new String[] {phno,"done"},null,null,null,null,null);
-        if(done.moveToFirst()){
-            do{
-
-                byte[] blob = done.getBlob(done.getColumnIndex(IMAGE));
-                String from = done.getString(done.getColumnIndex("FromUser"));
-                String username = getUserName(from);
-                String message = done.getString(done.getColumnIndex("Message"));
-                String desc = done.getString(done.getColumnIndex("Description"));
-                String dop = done.getString(done.getColumnIndex("DateOfPost"));
-                Profiles.add(new UserProfile(Utils.getImage(blob),dop,desc,from,username,message,"Done"));
-            }while(done.moveToNext());
-        }
-        done.close();
         return Profiles;
     }
 
 
-    public ArrayList<UserProfile> bidding(String from, String des, String date){
-        Cursor bid = mDb.query(true,"POST",new String[] {"ToUser","Message","Status"},
-                "FromUser"+"=?"+"AND Description"+"=?"+"AND DateOfPost"+"=?"+"AND Message"+"!=?", new String[] {from,des,date,""},
-                null,null,null,null,null);
-        if(bid.moveToFirst()){
-            do{
-                String toNo = bid.getString(bid.getColumnIndex("ToUser"));
-                String msg = bid.getString(bid.getColumnIndex("Message"));
-                String status = bid.getString(bid.getColumnIndex("Status"));
-                byte[] image = getUserImage(toNo);
-                Profiles.add(new UserProfile(Utils.getImage(image),toNo,status,msg));
-            }while (bid.moveToNext());
+    public ArrayList<UserProfile> bidding(String from, String des, String date, Connection connection){
+
+
+        String query = "SELECT * FROM postings WHERE FromUser  ='"+from+"'"+
+                " AND pDescription = '"+des+"'"+" AND DateOfPost = '"+date+"'"+
+                " AND pMessage != ''";
+        //Log.e("bidding",query);
+        Statement donest = null;
+        try {
+            donest = connection.createStatement();
+            ResultSet doners = donest.executeQuery(query);
+         //   Log.e("size",doners.getFetchSize()+"");
+            while (doners.next()){
+                String toNo = doners.getString("ToUser");
+                //Log.e("image1",blob);
+                String msg = doners.getString("pMessage");
+                String status = doners.getString("pStatus");
+                String image = getUserImage(toNo,connection);
+                Profiles.add(new UserProfile(image,toNo,status,msg));
+            }
+
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
         }
-        bid.close();
         return Profiles;
     }
 
@@ -331,144 +401,161 @@ public class DBHelper {
 
     //update bidamount in post
 
-    public void UpdateAmount(String user,String desc,String date,String amount){
-        ContentValues contentValues = new ContentValues();
-        contentValues.put("Message",amount);
-        mDb.update("POST",contentValues,"ToUser = ? AND Description = ? AND DateOfPost = ?",new String[]{user,desc,date});
+    public void UpdateAmount(String user,String desc,String date,String amount, Connection connection){
 
+        String query = "UPDATE postings SET pMessage = '"+amount+"'"+" WHERE ToUser = '"+user+"'"+" AND pDescription = '"+desc+"'"+
+                " AND DateOfPost = '"+date+"'";
+
+        Log.e("query",query);
+        Statement donest = null;
+        try {
+            donest = connection.createStatement();
+            int i = donest.executeUpdate(query);
+            Log.e("resul",i+"");
+
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+        }
     }
 
 
 
 
+    public ArrayList<User> retrieveUsersforLogin(String skill,String phone,Connection connection) throws SQLException {
 
-    public ArrayList<String> retrievePhoneNo(String location,String skill,String phone){
-        Cursor cities = mDb.query(true,"USER",new String[] {"PhoneNo"},"City"+"=?"+ "AND Skill"+"=?"+"AND PhoneNo"+"!=?",
-                new String[] {location,skill,phone},null,null,null,null,null);
-        if(cities.moveToFirst()){
-            do{
-                String C = cities.getString(cities.getColumnIndex("PhoneNo"));
-                PhoneNos.add(C);
-            }while (cities.moveToNext());
+        String query = "SELECT * FROM worker where convert(varchar,skill) = '"+skill+"' AND PhoneNo != '"+phone+"'" ;
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet rs = statement.executeQuery(query);
+
+            while (rs.next()) {
+
+                String imag = rs.getString("user_photo");
+                String name = rs.getString("Fname");
+                String phno = rs.getString("PhoneNo");
+                Float rating = rs.getFloat("rating");
+                String address = rs.getString("useraddress");
+                String city = rs.getString("city");
+                employeeList.add(new User(imag, name, phno,rating,address,city));
+
+            }
+
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
         }
-        return PhoneNos;
-
-    }
-
-
-    public ArrayList<User> retrieveUsersforLogin(String skill,String phone) throws SQLException {
-        Cursor cursor2 = mDb.query(true, IMAGES_TABLE, new String[] { IMAGE,"Address",
-                "Name", "PhoneNo","City","Rating"}, "Skill" + "=?"+ "AND PhoneNo"+"!=?",new String[] {skill,phone}, null,null, null, null, null);
-        if (cursor2.moveToFirst()) {
-            do {
-                byte[] blob = cursor2.getBlob(cursor2.getColumnIndex(IMAGE));
-                String name = cursor2.getString(cursor2.getColumnIndex("Name"));
-                String phno = cursor2.getString(cursor2.getColumnIndex("PhoneNo"));
-                Float rating = cursor2.getFloat(cursor2.getColumnIndex("Rating"));
-                employeeList
-                        .add(new User(Utils.getImage(blob), name, phno,rating));
-            } while (cursor2.moveToNext());
-        }
-
         return employeeList;
     }
 
 
-    public ArrayList<User> retrieveLocationsForMap(String skill){
-        Cursor maplocs = mDb.query(true,"USER",new String[]{"Address","PhoneNo"},"Skill"+"=?",new String[]{skill},null,null,null,null,null);
-        if(maplocs.moveToFirst()){
-            do{
-                String loc = maplocs.getString(maplocs.getColumnIndex("Address"));
-                String phno = maplocs.getString(maplocs.getColumnIndex("PhoneNo"));
+    public ArrayList<User> retrieveLocationsForMap(String skill,Connection connection){
+
+        String query = "SELECT * FROM worker WHERE convert(varchar,skill) = '"+skill+"'";
+        Log.e("query",query);
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet rs = statement.executeQuery(query);
+            Log.e("size",rs.getFetchSize()+"");
+            while(rs.next()){
+                String loc = rs.getString("useraddress");
+                String phno = rs.getString("PhoneNo");
+                Log.e("address",loc);
                 employeeList.add(new User(loc,phno));
+            }
 
-            }while(maplocs.moveToNext());
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+         //   Log.e("Mess",e.getMessage());
         }
-        maplocs.close();
         return employeeList;
     }
 
 
-    public ArrayList<User> retrieveUsers(String skill) throws SQLException {
-        Cursor cur = mDb.query(true, IMAGES_TABLE, new String[] { IMAGE,
-                "Name", "PhoneNo","City","Rating"}, "Skill" + "=?",new String[] {skill}, null,null, null, null, null);
-        if (cur.moveToFirst()) {
-            do {
-                byte[] blob = cur.getBlob(cur.getColumnIndex(IMAGE));
-                String name = cur.getString(cur.getColumnIndex("Name"));
-                String phno = cur.getString(cur.getColumnIndex("PhoneNo"));
-                Float rating = cur.getFloat(cur.getColumnIndex("Rating"));
-                employeeList
-                        .add(new User(Utils.getImage(blob), name, phno,rating));
-            } while (cur.moveToNext());
-        }
+    //with cloud retrieve users
 
+    public ArrayList<User> retrieveUsers(String skill,Connection connection) throws SQLException {
+
+        String query = "SELECT * FROM worker where convert(varchar,skill) = '" + skill + "'";
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet rs = statement.executeQuery(query);
+
+            while (rs.next()) {
+
+                String imag = rs.getString("user_photo");
+                String name = rs.getString("Fname");
+                String phno = rs.getString("PhoneNo");
+                Float rating = rs.getFloat("rating");
+                String address = rs.getString("useraddress");
+                String city = rs.getString("city");
+                employeeList.add(new User(imag, name, phno, rating,address,city));
+
+            }
+
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+        }
         return employeeList;
     }
+
 
     //changing status
 
-    public void changeStatus(String to, String desc, String date){
-        ContentValues contentValues = new ContentValues();
-        contentValues.put("Status", "done");
-        //contentValues.put("Category","done");
-        mDb.update("POST",contentValues,"ToUser = ?"+"AND Description = ?" + "AND DateOfPost = ?", new String[]{to, desc, date});
+    public void changeStatus(String to, String desc, String date,Connection connection ){
+
+        String query = "UPDATE postings SET pStatus = 'done' WHERE ToUser = '"+to+"'"+" AND pDescription = '"+desc+"'"+
+                " AND DateOfPost = '"+date+"'";
+        Statement statement = null;
+        try {
+            statement = connection.createStatement();
+            int i = statement.executeUpdate(query);
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+        }
     }
 
 
     //delete on accepting the post
-    public boolean deletePost(String from,String to,String descrip,String date){
-       return mDb.delete("POST","FromUser"+"=?"+ " AND ToUser"+"!=?"+ " AND Description"+"=?"+ " AND DateOfPost"+"=?",
-                new String[] {from, to, descrip, date}) > 0;
+    public boolean deletePost(String from,String to,String descrip,String date,Connection connection){
+        String query = "DELETE FROM postings WHERE FromUser = '"+from+"'"+" AND pDescription = '"+descrip+"'"+
+                " AND DateOfPost = '"+date+"'"+ " AND ToUser != '"+to+"'";
+        Statement statement = null;
+        try {
+            statement = connection.createStatement();
+            int i = statement.executeUpdate(query);
+            return i > 0;
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+        }
+        return  false;
     }
 
-    //settings
 
-    public User getUserDetails(String phno){
-        Cursor user = mDb.query(true,"USER",new String[] {IMAGE,"Address","City","Password","Skill"}, "PhoneNo"+"=?",new String[]{phno},null,null,null,null,null);
-        if(user.moveToFirst()) {
 
-            byte[] blob = user.getBlob(user.getColumnIndex(IMAGE));
-            String password = user.getString(user.getColumnIndex("Password"));
-            String skill = user.getString(user.getColumnIndex("Skill"));
-            String address = user.getString(user.getColumnIndex("Address"));
-            String city = user.getString(user.getColumnIndex("City"));
 
-            user.close();
-            userDetails = new User(Utils.getImage(blob), city, password, address, skill);
+    public User getUserDetails(String phno,Connection connection)  {
+        String query = "SELECT * FROM worker where PhoneNo = '"+phno+"'";
+       // Log.e("query==",query);
+
+        try {
+            Statement statement = connection.createStatement();
+
+            ResultSet rs = null;
+            rs = statement.executeQuery(query);
+            if(rs.next()){
+                String blob = rs.getString("user_photo");
+                String password = rs.getString("ppassword");
+                String skill = rs.getString("skill");
+                String address = rs.getString("useraddress");
+                String city = rs.getString("city");
+                userDetails = new User(blob, city, password, address, skill);
+
+            }
+     //       Log.e("Pass",userDetails.getUserImage());
+
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
         }
         return userDetails;
     }
-
-    //
-
-    //for mapping on google map
-
-    /*public ArrayList<MapUser> retrieveMapUsers(String city) throws SQLException{
-        Cursor cursor = mDb.query(true, IMAGES_TABLE, new String[] { IMAGE,
-                "Name", "PhoneNo","City","Rating"}, null, null,null, null, null, null);
-        if (cursor.moveToFirst()) {
-            do {
-                byte[] blob = cursor.getBlob(cursor.getColumnIndex(IMAGE));
-                String name = cursor.getString(cursor.getColumnIndex("Name"));
-                String phno = cursor.getString(cursor.getColumnIndex("PhoneNo"));
-                String address = cursor.getString(cursor.getColumnIndex("Address"));
-                String skill = cursor.getString(cursor.getColumnIndex("Skill"));
-                mapUsers
-                        .add(new MapUser(Utils.getImage(blob), name, phno, address,skill));
-            } while (cursor.moveToNext());
-        }
-        return mapUsers;
-
-    }*/
-   /* public boolean UpdateData( String phoneNo, String password, String address,String city) {
-        ContentValues cv = new ContentValues();
-        //cv.put(IMAGE, imageBytes);
-        cv.put("Password", password);
-        cv.put("Address", address);
-        cv.put("City", city);
-        mDb.update("USER", cv, "PhoneNo = ?",new String[] {phoneNo});
-        return true;
-    }*/
 }
 

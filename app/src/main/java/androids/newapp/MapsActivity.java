@@ -12,7 +12,6 @@ import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -21,7 +20,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
-import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -31,6 +29,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import java.io.IOException;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,6 +51,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     String location;
     SessionManager sessionManager;
     String userId;
+    Connection connect;
     ArrayList<String> phoneNumbers = new ArrayList<String>();
 
     @Override
@@ -68,16 +68,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-
         sessionManager = new SessionManager(getApplicationContext());
         userId = sessionManager.getUserDetails().get(SessionManager.KEY_NAME);
-
         editText = (EditText) findViewById(R.id.text);
         btn = (ImageButton) findViewById(R.id.search);
         hire = (Button) findViewById(R.id.hire);
         hire.setEnabled(false);
-        Toast.makeText(getApplicationContext(), Field, Toast.LENGTH_SHORT).show();
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -105,7 +101,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         AlertDialog alertDialog = mBuilder.create();
                         alertDialog.show();
                     } else {
-                        Toast.makeText(getApplicationContext(), location, Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getApplicationContext(), location, Toast.LENGTH_SHORT).show();
                         onMapSearch(view);
                     }
                 }
@@ -163,8 +159,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public void onMapSearch(View view) {
-
-
         if (marker != null) {
             marker.remove();
             mMap.clear();
@@ -172,8 +166,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         editText = (EditText) findViewById(R.id.text);
         String loc = editText.getText().toString();
         List<Address> addressList = null;
-
-
         if (location != null || !location.equals("")) {
             Geocoder geocoder = new Geocoder(this);
             try {
@@ -200,32 +192,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
                             DbHelper = new DBHelper(MapsActivity.this);
                             DbHelper.open();
-                            if (sessionManager.isLoggedIn() == false) {
-                                Locations = DbHelper.retrieveLocationsForMap(Field);
+
+
+                            ConnectionHelper conStr = new ConnectionHelper();
+                            connect = conStr.connectionclasss();
+                            if (connect == null) {
+                                Toast.makeText(getApplicationContext(),"Check Your Internet Access!",Toast.LENGTH_SHORT).show();
                             } else {
-                                Locations = DbHelper.retrieveLocationsForMapLogin(Field, userId);
-                            }
-                            DbHelper.close();
-                            if (Locations.size() == 0 || Locations == null) {
-                                AlertDialog.Builder mBuilder = new AlertDialog.Builder(MapsActivity.this, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
-                                mBuilder.setTitle("Alert");
-                                mBuilder.setMessage("No workers found in this place");
-                                mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.dismiss();
-                                    }
-                                });
-                                AlertDialog alertDialog = mBuilder.create();
-                                alertDialog.show();
-                                hire.setEnabled(false);
-                            } else {
-                                count = 0;
-                                hire.setEnabled(true);
-                                for (User s : Locations) {
-                                    addToMap(s, address.getLatitude(), address.getLongitude());
+
+                                if (sessionManager.isLoggedIn() == false) {
+                                    Locations = DbHelper.retrieveLocationsForMap(Field,connect);
+                                } else {
+                                    Locations = DbHelper.retrieveLocationsForMapLogin(Field, userId,connect);
                                 }
-                                if (count == 0) {
+                                DbHelper.close();
+                                if (Locations.size() == 0 || Locations == null) {
                                     AlertDialog.Builder mBuilder = new AlertDialog.Builder(MapsActivity.this, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
                                     mBuilder.setTitle("Alert");
                                     mBuilder.setMessage("No workers found in this place");
@@ -237,18 +218,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                     });
                                     AlertDialog alertDialog = mBuilder.create();
                                     alertDialog.show();
+                                    hire.setEnabled(false);
                                 } else {
-                                    Toast.makeText(getApplicationContext(), "There are " + count + " worker(s) nearby your searched Location", Toast.LENGTH_SHORT).show();
+                                    count = 0;
+                                    hire.setEnabled(true);
+                                    for (User s : Locations) {
+                                        addToMap(s, address.getLatitude(), address.getLongitude());
+                                    }
+                                    if (count == 0) {
+                                        AlertDialog.Builder mBuilder = new AlertDialog.Builder(MapsActivity.this, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+                                        mBuilder.setTitle("Alert");
+                                        mBuilder.setMessage("No workers found in this place");
+                                        mBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                dialog.dismiss();
+                                            }
+                                        });
+                                        AlertDialog alertDialog = mBuilder.create();
+                                        alertDialog.show();
+                                    } else {
+                                        Toast.makeText(getApplicationContext(), "There are " + count + " worker(s) nearby your searched Location", Toast.LENGTH_SHORT).show();
+                                    }
                                 }
                             }
                         }
                     }
                 }
-                //Toast.makeText(getApplicationContext(),addressList.toString(),Toast.LENGTH_SHORT).show();
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (NullPointerException n) {
-                Toast.makeText(getApplicationContext(), "Null Pointer", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "Null Pointer", Toast.LENGTH_SHORT).show();
+                n.printStackTrace();
             }
         }
     }
@@ -263,14 +264,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 addressList = geocoder.getFromLocationName(location1, 1);
                 for (Address a : addressList) {
                     if (a.hasLatitude() && a.hasLongitude()) {
-
                         Address address = addressList.get(0);
                         LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
                         float results[] = new float[10];
                         Location.distanceBetween(latitude1, longitude1, address.getLatitude(), address.getLongitude(), results);
-                        Toast.makeText(getApplicationContext(), results[0] + "", Toast.LENGTH_SHORT).show();
                         if (results[0] / 1000 <= 50) {
-                            Toast.makeText(getApplicationContext(), location1, Toast.LENGTH_SHORT).show();
                             marker = mMap.addMarker(new MarkerOptions().position(latLng).title("Near By"));
                             mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
                             phoneNumbers.add(location.getPhoneNo());
@@ -282,9 +280,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
-
     }
 
 
@@ -296,13 +292,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mLocationRequest.setInterval(120000);
         mLocationRequest.setFastestInterval(120000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                // mFusedLocation.requestLocationUpdates(mLocationRequest,mLocationCallback, Looper.myLooper());
                 mMap.setMyLocationEnabled(true);
             } else {
-                //  mFusedLocation.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
                 mMap.setMyLocationEnabled(true);
             }
             LatLng sydney = new LatLng(latitude, longitude);

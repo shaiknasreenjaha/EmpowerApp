@@ -1,24 +1,25 @@
 package androids.newapp;
 
 import android.Manifest;
-import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.iarcuschin.simpleratingbar.SimpleRatingBar;
-
+import java.io.ByteArrayOutputStream;
+import java.sql.Connection;
 import java.util.ArrayList;
 
 /**
@@ -27,6 +28,7 @@ import java.util.ArrayList;
 
 public class DispalyProfile extends AppCompatActivity{
     TextView profilename,profilephone;
+    ProgressDialog progressDialog;
     ImageButton profilecall,profilemsg;
     ImageView profileImage;
     Button viewProfile;
@@ -34,6 +36,7 @@ public class DispalyProfile extends AppCompatActivity{
     String phneNo;
     DBHelper dbHelper;
     User userProfile;
+    Connection connection;
     ArrayList<UserProfile> worksdone = new ArrayList<UserProfile>();
 
     @Override
@@ -51,8 +54,15 @@ public class DispalyProfile extends AppCompatActivity{
         phneNo = IntentData.ToIntent;
         dbHelper = new DBHelper(this);
         dbHelper.open();
-        userProfile = dbHelper.showProfile(phneNo);
-        dbHelper.close();
+        ConnectionHelper conStr=new ConnectionHelper();
+        connection =conStr.connectionclasss();
+        if (connection == null)          {
+            Toast.makeText(getApplicationContext(),"CheckInternetConnection",Toast.LENGTH_SHORT).show();
+        }
+        else {
+            userProfile = dbHelper.showProfile(phneNo, connection);
+            dbHelper.close();
+        }
 
         profilecall = (ImageButton)findViewById(R.id.profilecall);
         profilecall.setOnClickListener(new View.OnClickListener() {
@@ -70,7 +80,59 @@ public class DispalyProfile extends AppCompatActivity{
             }
         });
 
-        profileImage.setImageBitmap(userProfile.getBitmap());
+        profileImage.requestLayout();
+        profileImage.getLayoutParams().height=400;
+        profileImage.getLayoutParams().width=400;
+        profileImage.setScaleType(ImageView.ScaleType.FIT_XY);
+
+
+        progressDialog = new ProgressDialog(this, ProgressDialog.THEME_DEVICE_DEFAULT_LIGHT);
+        progressDialog.setMessage("Loading ...");
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.show();
+
+
+
+        final ByteArrayOutputStream imageStream = new ByteArrayOutputStream();
+
+        final Handler handler = new Handler();
+
+        Thread th = new Thread(new Runnable() {
+            public void run() {
+
+                try {
+
+                    long imageLength = 0;
+
+                    ImageManager.GetImage(userProfile.getUserImage(), imageStream, imageLength);
+
+                    handler.post(new Runnable() {
+
+                        public void run() {
+                            byte[] buffer = imageStream.toByteArray();
+
+                            Bitmap bitmap = BitmapFactory.decodeByteArray(buffer, 0, buffer.length);
+                            //bitmap.compress(Bitmap.CompressFormat.PNG, 0, imageStream);
+                            profileImage.setImageBitmap(bitmap);
+                            progressDialog.cancel();
+                        }
+                    });
+                } catch (Exception ex) {
+                    final String exceptionMessage = ex.getMessage();
+                    handler.post(new Runnable() {
+                        public void run() {
+                            Toast.makeText(DispalyProfile.this, exceptionMessage, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
+        });
+        th.start();
+
+
+
+
+        // profileImage.setImageBitmap(userProfile.getBitmap());
         profilename.setText(userProfile.getName());
         profilephone.setText(userProfile.getPhoneNo());
         rating.setRating(userProfile.getRating());
@@ -79,6 +141,7 @@ public class DispalyProfile extends AppCompatActivity{
             @Override
             public void onClick(View v) {
                 IntentData.ToIntent = phneNo;
+                IntentData.intentClass = 11;
                 Intent intent = new Intent(DispalyProfile.this,Workers.class);
                 startActivity(intent);
 
@@ -86,9 +149,17 @@ public class DispalyProfile extends AppCompatActivity{
         });
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        dbHelper.open();
-        worksdone = dbHelper.retrieveProfileDetails(phneNo);
-        dbHelper.close();
+
+      // Connect to database
+        if (connection == null)          {
+            Toast.makeText(getApplicationContext(),"CheckInternetConnection",Toast.LENGTH_SHORT).show();
+        }
+        else {
+
+            dbHelper.open();
+            worksdone = dbHelper.retrieveProfileDetails(phneNo,connection);
+            dbHelper.close();
+        }
 
     }
 

@@ -14,12 +14,15 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 import java.io.ByteArrayOutputStream;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -30,6 +33,7 @@ public class Profile extends AppCompatActivity
     ListView listView;
     SessionManager sessionManager;
     TextView tx;
+    Connection connect;
     public ArrayList<UserProfile> userProfile = new ArrayList<UserProfile>();
 
     @Override
@@ -57,48 +61,57 @@ public class Profile extends AppCompatActivity
             View header = (((NavigationView) findViewById(R.id.nav_view)).getHeaderView(0));
             TextView name;
             name = (TextView) header.findViewById(R.id.personName);
-            DbHelper = new DBHelper(Profile.this);
-            DbHelper.open();
-            String name1 = DbHelper.getUserName(phoneNo);
-            name.setText(name1);
 
-
-
-            DbHelper = new DBHelper(this);
-            DbHelper.open();
-            userProfile = DbHelper.retrieveProfileDetails1(phoneNo);
-            DbHelper.close();
-
-            if(userProfile!=null && userProfile.size()>0) {tx.setText("");
-                userProfile = sortAndAddSections(userProfile);
-                listView = (ListView) findViewById(R.id.profile);
-                profileViewAdapter = new ProfileViewAdapter(this, userProfile);
-                listView.setAdapter(profileViewAdapter);
-                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Intent image = new Intent(Profile.this, DisplayImage.class);
-                        ByteArrayOutputStream bs = new ByteArrayOutputStream();
-                        userProfile.get(position).getBitmap().compress(Bitmap.CompressFormat.PNG, 50, bs);
-                        IntentData.imageIntent = userProfile.get(position).getBitmap();
-                        IntentData.descriptionIntent = userProfile.get(position).getDescription();
-                        IntentData.dateIntent = userProfile.get(position).getDate();
-                        IntentData.categoryIntent = userProfile.get(position).getCategory();
-                        IntentData.bidAmount = userProfile.get(position).getAmount();
-                        startActivity(image);
-                    }
-                });
+            ConnectionHelper conStr=new ConnectionHelper();
+            connect =conStr.connectionclasss();        // Connect to database
+            if (connect == null)          {
+                Toast.makeText(getApplicationContext(), "Check Your Internet Access!",Toast.LENGTH_SHORT).show();
             }
+            else {
 
+                DbHelper = new DBHelper(Profile.this);
+                DbHelper.open();
+                String name1 = DbHelper.getUserName(phoneNo,connect);
+                name.setText(name1);
+
+
+                DbHelper = new DBHelper(this);
+                DbHelper.open();
+                userProfile = DbHelper.retrieveProfileDetails1(phoneNo,connect);
+                DbHelper.close();
+
+                if (userProfile != null && userProfile.size() > 0) {
+                    tx.setText("");
+                    userProfile = sortAndAddSections(userProfile);
+                    listView = (ListView) findViewById(R.id.profile);
+                    profileViewAdapter = new ProfileViewAdapter(this, userProfile);
+                    listView.setAdapter(profileViewAdapter);
+                    listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            Intent image = new Intent(Profile.this, DisplayImage.class);
+                            ByteArrayOutputStream bs = new ByteArrayOutputStream();
+                            IntentData.imageIntent = userProfile.get(position).getBitmap();
+                            IntentData.descriptionIntent = userProfile.get(position).getDescription();
+                            IntentData.dateIntent = userProfile.get(position).getDate();
+                            IntentData.categoryIntent = userProfile.get(position).getCategory();
+                            //Toast.makeText(getApplicationContext(),userProfile.get(position).getAmount(),Toast.LENGTH_SHORT).show();
+                            //Log.e("Bid Amount",userProfile.get(position).getAmount());
+                            IntentData.bidAmount = userProfile.get(position).getAmount();
+                            startActivity(image);
+                        }
+                    });
+                }
+            }
         }else{
             tx.setText("NO MESSAGES TILL YOU LOGGED IN");
             AlertDialog.Builder mBuilder = new AlertDialog.Builder(Profile.this, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
             mBuilder.setTitle("Alert");
-
-            mBuilder.setMessage("To view your profile please login");
+            mBuilder.setMessage("To view your History please login");
             mBuilder.setPositiveButton("login", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+                    IntentData.intentClass = 4;
                     Intent intent = new Intent(Profile.this, LoginActivity.class);
                     startActivity(intent);
                 }
@@ -121,7 +134,7 @@ public class Profile extends AppCompatActivity
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            Intent intent = new Intent(Profile.this,Hire.class);
+            Intent intent = new Intent(Profile.this,MainActivity.class);
             startActivity(intent);
         }
     }
@@ -151,12 +164,18 @@ public class Profile extends AppCompatActivity
                 intent = new Intent(Profile.this, Logout.class);
                 startActivity(intent);
                 break;
+            case R.id.nav_history:
+                intent = new Intent(Profile.this, MyProfile.class);
+                startActivity(intent);
+                break;
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+
     private ArrayList<UserProfile> sortAndAddSections(ArrayList<UserProfile> itemList){
         ArrayList<UserProfile> tempList = new ArrayList<UserProfile>();
         Collections.sort(itemList);
