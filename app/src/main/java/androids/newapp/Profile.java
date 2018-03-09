@@ -6,7 +6,6 @@ package androids.newapp;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -14,15 +13,12 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 import java.io.ByteArrayOutputStream;
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -33,7 +29,6 @@ public class Profile extends AppCompatActivity
     ListView listView;
     SessionManager sessionManager;
     TextView tx;
-    Connection connect;
     public ArrayList<UserProfile> userProfile = new ArrayList<UserProfile>();
 
     @Override
@@ -61,23 +56,13 @@ public class Profile extends AppCompatActivity
             View header = (((NavigationView) findViewById(R.id.nav_view)).getHeaderView(0));
             TextView name;
             name = (TextView) header.findViewById(R.id.personName);
-
-            ConnectionHelper conStr=new ConnectionHelper();
-            connect =conStr.connectionclasss();        // Connect to database
-            if (connect == null)          {
-                Toast.makeText(getApplicationContext(), "Check Your Internet Access!",Toast.LENGTH_SHORT).show();
-            }
-            else {
-
                 DbHelper = new DBHelper(Profile.this);
                 DbHelper.open();
-                String name1 = DbHelper.getUserName(phoneNo,connect);
+                String name1 = DbHelper.getUserName(phoneNo);
                 name.setText(name1);
-
-
                 DbHelper = new DBHelper(this);
                 DbHelper.open();
-                userProfile = DbHelper.retrieveProfileDetails1(phoneNo,connect);
+                userProfile = DbHelper.retrieveProfileDetails1(phoneNo);
                 DbHelper.close();
 
                 if (userProfile != null && userProfile.size() > 0) {
@@ -95,15 +80,12 @@ public class Profile extends AppCompatActivity
                             IntentData.descriptionIntent = userProfile.get(position).getDescription();
                             IntentData.dateIntent = userProfile.get(position).getDate();
                             IntentData.categoryIntent = userProfile.get(position).getCategory();
-                            //Toast.makeText(getApplicationContext(),userProfile.get(position).getAmount(),Toast.LENGTH_SHORT).show();
-                            //Log.e("Bid Amount",userProfile.get(position).getAmount());
                             IntentData.bidAmount = userProfile.get(position).getAmount();
                             startActivity(image);
                         }
                     });
                 }
-            }
-        }else{
+            }else{
             tx.setText("NO MESSAGES TILL YOU LOGGED IN");
             AlertDialog.Builder mBuilder = new AlertDialog.Builder(Profile.this, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
             mBuilder.setTitle("Alert");

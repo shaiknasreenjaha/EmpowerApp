@@ -3,8 +3,7 @@ package androids.newapp;
 /**
  * Created by Lenovo on 08-Feb-18.
  */
-
-    import android.graphics.Bitmap;
+;
 
 public class User {
     private String userImage;
@@ -34,21 +33,18 @@ public class User {
 
 
 
-    public User(String  b, String n, String k,Float r,String address,String city) {
+    public User(String  b, String n, String k,Float r,String address,String city,String skill) {
         userImage = b;
         name = n;
         phoneNo = k;
         rating = r;
         this.address = address;
         this.city = city;
+        this.skill = skill;
     }
 
 
     public String getPassword(){return password;}
-
-    public String getSkill(){
-        return skill;
-    }
 
     public String getCity(){
         return city;
@@ -61,8 +57,6 @@ public class User {
         return userImage;
     }
 
-
-
     public String getName() {
         return name;
     }
@@ -70,6 +64,8 @@ public class User {
     public String getPhoneNo() {
         return phoneNo;
     }
+
+    public String getSkill(){return skill;}
 
 
     public Float getRating() {

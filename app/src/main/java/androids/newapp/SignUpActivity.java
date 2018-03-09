@@ -120,8 +120,6 @@ public class SignUpActivity extends Activity implements OnClickListener {
         if (requestCode == GALLERY) {
             if (data != null) {
                 contentURI = data.getData();
-                //Toast.makeText(SignUpActivity.this,"img selected  : "+contentURI,Toast.LENGTH_LONG).show();
-
                 try {
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), contentURI);
                     image =  Utils.getImageBytes(bitmap);

@@ -9,8 +9,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
-import java.sql.Connection;
 import java.util.ArrayList;
 
 /**
@@ -24,14 +22,11 @@ public class Workers extends AppCompatActivity {
     String Field;
     ArrayList<UserProfile> userProfiles = new ArrayList<UserProfile>();
     DBHelper dbHelper;
-    Connection connect;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         sessionManager = new SessionManager(getApplicationContext());
-
         if(sessionManager.isLoggedIn()){
             setContentView(R.layout.worker_list);
         }else{
@@ -43,14 +38,7 @@ public class Workers extends AppCompatActivity {
         dbHelper = new DBHelper(this);
 
         dbHelper.open();
-        ConnectionHelper conStr=new ConnectionHelper();
-        connect =conStr.connectionclasss();
-        if (connect == null)          {
-            Toast.makeText(getApplicationContext(), "Check Your Internet Access!",Toast.LENGTH_SHORT).show();
-        }
-        else {
-
-            userProfiles = dbHelper.retrieveProfileDetails(IntentData.ToIntent, connect);
+            userProfiles = dbHelper.retrieveProfileDetails(IntentData.ToIntent);
             dbHelper.close();
 
             if (userProfiles != null && userProfiles.size() > 0) {
@@ -62,7 +50,6 @@ public class Workers extends AppCompatActivity {
                 listView.setAdapter(workerListAdapter);
                 Field = IntentData.skillIntent;
             }
-        }
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 

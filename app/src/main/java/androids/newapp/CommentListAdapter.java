@@ -14,7 +14,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.io.ByteArrayOutputStream;
-import java.sql.Connection;
 import java.util.ArrayList;
 
 /**
@@ -26,7 +25,6 @@ public class CommentListAdapter extends ArrayAdapter<UserProfile> {
     LayoutInflater inflater;
     Context context;
     SessionManager sessionManager;
-    Connection connection;
     TextView name,pno,date;
     ArrayList<UserProfile> Users = new ArrayList<UserProfile>();
     String bitmap;
@@ -164,16 +162,11 @@ public class CommentListAdapter extends ArrayAdapter<UserProfile> {
                 public void onClick(View v) {
 
                     dbHelper.open();
-                    ConnectionHelper connectionHelper =  new ConnectionHelper();
-                    connection = connectionHelper.connectionclasss();        // Connect to database
-                    if (connection == null) {
-                        Toast.makeText(CommentListAdapter.this.context, "Check your internet Access", Toast.LENGTH_SHORT).show();
-                    }else {
-                        dbHelper.changeStatus(Users.get(position).getTo(), description, date1,connection );
-                        boolean i = dbHelper.deletePost(userId, Users.get(position).getTo(), description, date1,connection);
+                        dbHelper.changeStatus(Users.get(position).getTo(), description, date1 );
+                        boolean i = dbHelper.deletePost(userId, Users.get(position).getTo(), description, date1);
                         Intent intent = new Intent(CommentListAdapter.this.context,DisplayImage.class);
                         context.startActivity(intent);
-                    }
+
                     dbHelper.close();
                 }
             });

@@ -19,7 +19,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -44,7 +43,6 @@ public class Description extends AppCompatActivity {
     String imageName;
     Uri contentURI;
     Calendar calendar;
-    Connection connect;
     ProgressDialog progressDialog;
 
     @Override
@@ -232,21 +230,11 @@ public class Description extends AppCompatActivity {
             else if(selectedImageUri == null){
                 Toast.makeText(getApplication(),"image is needed",Toast.LENGTH_SHORT).show();
             }else  {
-
-                ConnectionHelper conStr=new ConnectionHelper();
-                connect =conStr.connectionclasss();        // Connect to database
-                if (connect == null)          {
-                    //ConnectionResult = "Check Your Internet Access!";
-                    Toast.makeText(getApplicationContext(),"Check Your Internet Access!",Toast.LENGTH_SHORT).show();
-                }
-                else {
-
                 for (String post : phno) {
-                    dbHelper.insertPost(imageName, post, From, Dateto, desc,connect);
+                    dbHelper.insertPost(imageName, post, From, Dateto, desc);
                 }
                 dbHelper.close();
                 return true;
-                }
             }
             return false;
         } catch (Exception ioe) {

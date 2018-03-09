@@ -29,7 +29,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import java.io.IOException;
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,7 +50,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     String location;
     SessionManager sessionManager;
     String userId;
-    Connection connect;
     ArrayList<String> phoneNumbers = new ArrayList<String>();
 
     @Override
@@ -136,8 +134,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
         });
-
-
     }
 
 
@@ -194,16 +190,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             DbHelper.open();
 
 
-                            ConnectionHelper conStr = new ConnectionHelper();
-                            connect = conStr.connectionclasss();
-                            if (connect == null) {
-                                Toast.makeText(getApplicationContext(),"Check Your Internet Access!",Toast.LENGTH_SHORT).show();
-                            } else {
 
                                 if (sessionManager.isLoggedIn() == false) {
-                                    Locations = DbHelper.retrieveLocationsForMap(Field,connect);
+                                    Locations = DbHelper.retrieveLocationsForMap(Field);
                                 } else {
-                                    Locations = DbHelper.retrieveLocationsForMapLogin(Field, userId,connect);
+                                    Locations = DbHelper.retrieveLocationsForMapLogin(Field, userId);
                                 }
                                 DbHelper.close();
                                 if (Locations.size() == 0 || Locations == null) {
@@ -243,7 +234,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 }
                             }
                         }
-                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();

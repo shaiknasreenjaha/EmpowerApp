@@ -11,9 +11,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -28,9 +25,6 @@ public class Home extends AppCompatActivity    {
     SessionManager session;
     String userid;
     Button register;
-    Connection connect;
-    String ConnectionResult = "";
-    String query;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,16 +52,11 @@ public class Home extends AppCompatActivity    {
 
 
         try {
-            ConnectionHelper conStr = new ConnectionHelper();
-            connect = conStr.connectionclasss();
-            if (connect == null) {
-                ConnectionResult = "Check Your Internet Access!";
-            } else {
-                if(session.isLoggedIn() == false) {
-                    userList = DbHelper.retrieveUsers(Field,connect);
+             if(session.isLoggedIn() == false) {
+                    userList = DbHelper.retrieveUsers(Field);
                 }else{
                     register.setVisibility(View.GONE);
-                    userList = DbHelper.retrieveUsersforLogin(Field, userid,connect);
+                    userList = DbHelper.retrieveUsersforLogin(Field, userid);
                 }
                 DbHelper.close();
 
@@ -83,7 +72,6 @@ public class Home extends AppCompatActivity    {
                     Button bid = (Button) findViewById(R.id.button2);
                     bid.setVisibility(View.INVISIBLE);
                 }
-            }
 
         }catch (SQLException s){
             s.printStackTrace();

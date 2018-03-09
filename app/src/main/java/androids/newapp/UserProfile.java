@@ -1,7 +1,5 @@
 package androids.newapp;
 
-import android.graphics.Bitmap;
-
 /**
  * Created by Lenovo on 10-Feb-18.
  */

@@ -5,7 +5,6 @@ package androids.newapp;
  */
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -25,7 +24,6 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.iarcuschin.simpleratingbar.SimpleRatingBar;
@@ -35,7 +33,6 @@ import java.util.ArrayList;
 
 public class ListViewAdapter extends BaseAdapter {
     Context context;
-    ProgressDialog progressDialog;
     String Field;
     ArrayList<User> Users = new ArrayList<User>();
     LayoutInflater inflater;

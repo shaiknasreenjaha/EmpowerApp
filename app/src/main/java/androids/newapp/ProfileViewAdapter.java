@@ -48,8 +48,6 @@ public class ProfileViewAdapter extends ArrayAdapter<UserProfile> {
             }
             else {
                 convertView = inflater.inflate(R.layout.profile_list,null);
-                //mageView imageView = (ImageView)v.findViewById(R.id.profileimage);
-                //imageView.setImageBitmap(userProfile.getBitmap());
                 name = (TextView) convertView.findViewById(R.id.fromName);
                 date = (TextView) convertView.findViewById(R.id.profiledate);
                 pno = (TextView) convertView.findViewById(R.id.profilefrom);

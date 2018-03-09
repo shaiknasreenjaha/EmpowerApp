@@ -1,3 +1,4 @@
+
 package androids.newapp;
 
 import android.Manifest;
@@ -19,7 +20,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.iarcuschin.simpleratingbar.SimpleRatingBar;
 import java.io.ByteArrayOutputStream;
-import java.sql.Connection;
 import java.util.ArrayList;
 
 /**
@@ -36,7 +36,6 @@ public class DispalyProfile extends AppCompatActivity{
     String phneNo;
     DBHelper dbHelper;
     User userProfile;
-    Connection connection;
     ArrayList<UserProfile> worksdone = new ArrayList<UserProfile>();
 
     @Override
@@ -54,15 +53,9 @@ public class DispalyProfile extends AppCompatActivity{
         phneNo = IntentData.ToIntent;
         dbHelper = new DBHelper(this);
         dbHelper.open();
-        ConnectionHelper conStr=new ConnectionHelper();
-        connection =conStr.connectionclasss();
-        if (connection == null)          {
-            Toast.makeText(getApplicationContext(),"CheckInternetConnection",Toast.LENGTH_SHORT).show();
-        }
-        else {
-            userProfile = dbHelper.showProfile(phneNo, connection);
+            userProfile = dbHelper.showProfile(phneNo);
             dbHelper.close();
-        }
+
 
         profilecall = (ImageButton)findViewById(R.id.profilecall);
         profilecall.setOnClickListener(new View.OnClickListener() {
@@ -150,19 +143,20 @@ public class DispalyProfile extends AppCompatActivity{
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-      // Connect to database
-        if (connection == null)          {
-            Toast.makeText(getApplicationContext(),"CheckInternetConnection",Toast.LENGTH_SHORT).show();
-        }
-        else {
+
 
             dbHelper.open();
-            worksdone = dbHelper.retrieveProfileDetails(phneNo,connection);
+            worksdone = dbHelper.retrieveProfileDetails(phneNo);
             dbHelper.close();
-        }
+
 
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(DispalyProfile.this,DisplayImage.class);
+        startActivity(intent);
+    }
 
     private void sendSMSMessage(String phno) {
         try {
@@ -186,3 +180,4 @@ public class DispalyProfile extends AppCompatActivity{
     }
 
 }
+

@@ -94,8 +94,4 @@
         android:text="View Profile"
         android:id="@+id/view_profile"
         />
-
-
-
-
 </LinearLayout>

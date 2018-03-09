@@ -1,9 +1,5 @@
 package androids.newapp;
 
-/**
- * Created by Lenovo on 02-Mar-18.
- */
-
 import android.annotation.SuppressLint;
 import android.os.StrictMode;
 import android.util.Log;

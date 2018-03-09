@@ -1,3 +1,4 @@
+
 package androids.newapp;
 
 
@@ -21,7 +22,6 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.io.ByteArrayOutputStream;
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -31,7 +31,6 @@ import java.util.Collections;
 
 public class DisplayImage extends AppCompatActivity {
     String category;
-    Connection connection;
     DBHelper dbHelper;
     float value;
     ArrayList<UserProfile> userProfiles;
@@ -52,12 +51,7 @@ public class DisplayImage extends AppCompatActivity {
         descr = IntentData.descriptionIntent;
         sessionManager = new SessionManager(getApplicationContext());
         UserId = sessionManager.getUserDetails().get(SessionManager.KEY_NAME);
-        ConnectionHelper conStr = new ConnectionHelper();
-        connection = conStr.connectionclasss();        // Connect to database
-        if (connection == null) {
-            Toast.makeText(getApplicationContext(), "Check your internet Access", Toast.LENGTH_SHORT).show();
-        }else {
-            if (category.equals("Received")) {
+        if (category.equals("Received")) {
 
                 setContentView(R.layout.image_profile);
                 TextView y = (TextView) findViewById(R.id.hai);
@@ -81,7 +75,7 @@ public class DisplayImage extends AppCompatActivity {
                         public void onClick(View v) {
                             String amount = sendamount.getText().toString();
                             sendamount.setText("");
-                            dbHelper.UpdateAmount(UserId, descr, IntentData.dateIntent, amount,connection);
+                            dbHelper.UpdateAmount(UserId, descr, IntentData.dateIntent, amount);
                             Intent intent = new Intent(DisplayImage.this,DisplayImage.class);
                             IntentData.bidAmount = amount;
                             finish();
@@ -153,7 +147,7 @@ public class DisplayImage extends AppCompatActivity {
                 setContentView(R.layout.comment_list);
                 dbHelper = new DBHelper(this);
                 dbHelper.open();
-                userProfiles = dbHelper.bidding(UserId, descr, IntentData.dateIntent,connection);
+                userProfiles = dbHelper.bidding(UserId, descr, IntentData.dateIntent);
                 dbHelper.close();
 
                 if (userProfiles != null && userProfiles.size() > 0) {
@@ -207,7 +201,7 @@ public class DisplayImage extends AppCompatActivity {
                         final TextView rate = (TextView) findViewById(R.id.rate);
                         dbHelper.open();
 
-                        if (dbHelper.getRating(userProfiles.get(0).getTo(), UserId, descr, IntentData.dateIntent,connection) == 0.0f) {
+                        if (dbHelper.getRating(userProfiles.get(0).getTo(), UserId, descr, IntentData.dateIntent) == 0.0f) {
                             rate.setOnClickListener(new View.OnClickListener() {
 
                                 @Override
@@ -234,9 +228,9 @@ public class DisplayImage extends AppCompatActivity {
                                         public void onClick(DialogInterface dialog, int which) {
                                             dbHelper = new DBHelper(DisplayImage.this);
                                             dbHelper.open();
-                                            boolean i = dbHelper.UpdateRating(userProfiles.get(0).getTo(), UserId, IntentData.dateIntent, descr, value, connection);
+                                            boolean i = dbHelper.UpdateRating(userProfiles.get(0).getTo(), UserId, IntentData.dateIntent, descr, value);
                                             if (i) {
-                                                boolean c = dbHelper.updateUserRating(userProfiles.get(0).getTo(),connection);
+                                                boolean c = dbHelper.updateUserRating(userProfiles.get(0).getTo());
                                                 if(c) {
                                                     Toast.makeText(getApplicationContext()," Your rating is submitted successfully!!!", Toast.LENGTH_SHORT).show();
                                                     Intent intent = new Intent(DisplayImage.this, DisplayImage.class);
@@ -323,7 +317,7 @@ public class DisplayImage extends AppCompatActivity {
                 }
             }
 
-        }
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
@@ -356,3 +350,4 @@ public class DisplayImage extends AppCompatActivity {
 
 
 }
+

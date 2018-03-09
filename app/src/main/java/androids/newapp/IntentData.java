@@ -1,6 +1,6 @@
+
 package androids.newapp;
 
-import android.graphics.Bitmap;
 
 import java.util.ArrayList;
 

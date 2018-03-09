@@ -55,7 +55,6 @@ public class WorkerListAdapter extends BaseAdapter {
 
         if(convertView == null){
             inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
             convertView = inflater.inflate(R.layout.about_worker, null);
             holder = new HolderView();
             holder.circleImageView = (ImageView) convertView.findViewById(R.id.postImage);
@@ -65,35 +64,22 @@ public class WorkerListAdapter extends BaseAdapter {
         } else {
             holder = (HolderView) convertView.getTag();
         }
-
-
-
         holder.circleImageView.requestLayout();
         holder.circleImageView.getLayoutParams().height = 500;
         holder.circleImageView.getLayoutParams().width = 500;
         holder.circleImageView.setScaleType(ImageView.ScaleType.FIT_XY);
-
-        //holder.circleImageView.setImageBitmap(worksDone.get(position).getBitmap());
         final ByteArrayOutputStream imageStream = new ByteArrayOutputStream();
-
         final Handler handler = new Handler();
 
         Thread th = new Thread(new Runnable() {
             public void run() {
-
                 try {
-
                     long imageLength = 0;
-
                     ImageManager.GetImage(worksDone.get(position).getBitmap(), imageStream, imageLength);
-
                     handler.post(new Runnable() {
-
                         public void run() {
                             byte[] buffer = imageStream.toByteArray();
-
                             Bitmap bitmap = BitmapFactory.decodeByteArray(buffer, 0, buffer.length);
-                            //bitmap.compress(Bitmap.CompressFormat.PNG, 0, imageStream);
                             holder.circleImageView.setImageBitmap(bitmap);
                         }
                     });

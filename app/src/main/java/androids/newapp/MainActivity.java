@@ -3,7 +3,6 @@ package androids.newapp;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.SQLException;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -18,13 +17,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-import java.sql.Connection;
+
 
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
      Button btn;
-    DBHelper dbHelper;Connection connect;
+    DBHelper dbHelper;
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     SessionManager sessionManager;
 
@@ -48,23 +47,13 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-
-
-        try {
-            ConnectionHelper conStr = new ConnectionHelper();
-            connect = conStr.connectionclasss();        // Connect to database
-            if (connect == null) {
-                Toast.makeText(getApplicationContext(), "Check your internet Access", Toast.LENGTH_SHORT).show();
-            } else {
-
-
                 if(sessionManager.isLoggedIn()){
                     View header = (((NavigationView) findViewById(R.id.nav_view)).getHeaderView(0));
                     TextView name;
                     name = (TextView) header.findViewById(R.id.personName);
                     dbHelper = new DBHelper(MainActivity.this);
                     dbHelper.open();
-                    String name1 = dbHelper.getUserName(phoneNo,connect);
+                    String name1 = dbHelper.getUserName(phoneNo);
                     name.setText(name1);
                 }
 
@@ -75,21 +64,15 @@ public class MainActivity extends AppCompatActivity
                     RequestMultiplePermission();
                 }
 
-                btn = (Button) findViewById(R.id.getStarted);
-                btn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(MainActivity.this,Hire.class);
-                        startActivity(intent);
-                    }
-                });
+
+        btn = (Button) findViewById(R.id.getStarted);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this,Hire.class);
+                startActivity(intent);
             }
-        }catch(SQLException s){
-            s.printStackTrace();
-
-
-        }
-
+        });
     }
 
 
